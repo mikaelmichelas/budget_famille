@@ -605,10 +605,8 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
       <div class="sim-group">
         <div class="sim-group-title">Scénarios rapides</div>
         <div style="display:flex;flex-direction:column;gap:6px">
-          <button class="btn-reset" style="width:100%;text-align:left;padding:7px 10px" onclick="applyPreset('now')">📌 Situation actuelle (base)</button>
-          <button class="btn-reset" style="width:100%;text-align:left;padding:7px 10px" onclick="applyPreset('changes')">⚡ Aug. Mikael +191€ · Perte SFT -80€</button>
-          <button class="btn-reset" style="width:100%;text-align:left;padding:7px 10px" onclick="applyPreset('travaux')">🎉 + Fin prêt travaux déc. 2026</button>
-          <button class="btn-reset" style="width:100%;text-align:left;padding:7px 10px" onclick="applyPreset('optimiste')">🚀 Augmentations + fin travaux + épargne 15%</button>
+          <button class="btn-reset" style="width:100%;text-align:left;padding:7px 10px" onclick="applyPreset('now')">📌 Situation actuelle</button>
+          <button class="btn-reset" style="width:100%;text-align:left;padding:7px 10px" onclick="applyPreset('travaux')">🎉 Fin prêt travaux déc. 2026</button>
         </div>
       </div>
     </div>
@@ -1185,18 +1183,37 @@ function applyScenEpg(key) {
 // ══════════════════════════════════════════
 // SIMULATION — SLIDERS
 // ══════════════════════════════════════════
-const simBase = { eSal:2200, eEpg:200, eDepP:552, mSal:2895, mSal2:1234, mEpg:400, mDepP:1477 };
-const presets = {
-  now:      { eSal:2200, eEpg:200, eDepP:552, mSal:2895, mSal2:1234, mEpg:400, mDepP:1477 },
-  changes:  { eSal:2100, eEpg:200, eDepP:552, mSal:3095, mSal2:1234, mEpg:400, mDepP:1477 },
-  travaux:  { eSal:2100, eEpg:329, eDepP:552, mSal:3095, mSal2:1234, mEpg:530, mDepP:1477 },
-  optimiste:{ eSal:2100, eEpg:330, eDepP:552, mSal:3095, mSal2:1234, mEpg:620, mDepP:1400 },
-};
+
+// Toujours lire l'état courant (salaires modifiés, dépenses ajustées, etc.)
+function getCurrentSimValues() {
+  return {
+    eSal:  state.eSal  || 2200,
+    eEpg:  state.eEpg  || 200,
+    eDepP: state.eDepP || 552,
+    mSal:  state.mSal  || 2895,
+    mSal2: state.mSal2 || 1234,
+    mEpg:  state.mEpg  || 400,
+    mDepP: state.mDepP || 1477,
+  };
+}
+
 function applyPreset(key) {
-  const p = presets[key];
-  for (const [k,v] of Object.entries(p)) {
-    const el = document.getElementById('sl-'+k.replace(/([A-Z])/g,'-$1').toLowerCase().replace('--','-'));
-    if (el) { el.value = v; }
+  const cur = getCurrentSimValues();
+  let p;
+  if (key === 'now') {
+    p = { ...cur };
+  } else if (key === 'travaux') {
+    // Fin prêt travaux : +259€ libérés, répartis en épargne
+    p = { ...cur, eEpg: cur.eEpg + 130, mEpg: cur.mEpg + 129 };
+  }
+  if (!p) return;
+  const slMap = {
+    eSal:'sl-e-sal', eEpg:'sl-e-epg', eDepP:'sl-e-dep',
+    mSal:'sl-m-sal', mSal2:'sl-m-sal2', mEpg:'sl-m-epg', mDepP:'sl-m-dep'
+  };
+  for (const [k, slId] of Object.entries(slMap)) {
+    const el = document.getElementById(slId);
+    if (el && p[k] !== undefined) el.value = p[k];
   }
   syncSim();
 }
@@ -1222,11 +1239,12 @@ function syncSim() {
   const totalEpg = (simState.eEpg||0) + (simState.mEpg||0);
   const surplus = totalRev - totalDep - totalEpg;
 
-  const baseB = computeBudget(BASE);
-  const dRev = totalRev - baseB.totalRev;
-  const dEpg = totalEpg - baseB.totalEpg;
-  const dDep = totalDep - baseB.totalDep;
-  const dSur = surplus - baseB.surplus;
+  // Comparer vs situation courante (state), pas vs valeurs initiales codées
+  const curB = computeBudget(state);
+  const dRev = totalRev - curB.totalRev;
+  const dEpg = totalEpg - (state.eEpg + state.mEpg);
+  const dDep = totalDep - (state.eDepC + state.mDepC + state.eDepP + state.mDepP);
+  const dSur = surplus - curB.surplus;
 
   function pill(d) {
     if (Math.abs(d)<0.5) return `<span class="delta-pill neu">±0</span>`;
@@ -1471,6 +1489,8 @@ renderPoches('m');
 updateCAF(BASE.caf);
 updateAll();
 syncSim();
+// Init sliders simulation depuis la situation courante
+applyPreset('now');
 
 // Restauration async depuis Google Sheets
 restoreFromStorage().then(restored => {
