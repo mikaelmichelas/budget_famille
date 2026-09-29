@@ -990,27 +990,35 @@ function renderDepBars() {
 // ÉPARGNE — OUTIL INTERACTIF
 // ══════════════════════════════════════════
 let pochesE = [
-  { name:'Confluence', montant:40, color:'var(--emilie)' },
-  { name:'Livret A', montant:160, color:'var(--emilie)', opacity:'.6' },
+  { name:'Confluence', montant:40, fixe:true },
+  { name:'Livret A (fixe)', montant:50, fixe:true },
+  { name:'Livret A (variable)', montant:110, fixe:false },
 ];
 let pochesM = [
-  { name:'Livret A', montant:365, color:'var(--mikael)' },
-  { name:'Bitstack BTC', montant:35, color:'var(--mikael)', opacity:'.6' },
-  { name:'PEL Charly', montant:50, color:'var(--commun)' },
+  { name:'Livret A', montant:365, fixe:false },
+  { name:'Bitstack BTC', montant:35, fixe:false },
+  { name:'PEL Charly', montant:50, fixe:false },
 ];
 
+const EPG_FIXE_E = 90; // Confluence 40 + Livret A 50 — intouchable
+
 function getSurplusBase() {
-  return computeBudget(state).surplus;
+  // Enveloppe réelle = surplus perso + épargne programmée
+  // (l'épargne est une dépense choisie, on peut la moduler)
+  const b = computeBudget(state);
+  return b.surplus + state.eEpg + state.mEpg;
 }
 function getImprevus() {
   return parseFloat(document.getElementById('epg-imprevus').value)||0;
 }
 function getDispo() {
-  return Math.max(0, getSurplusBase() - getImprevus());
+  return getSurplusBase() - getImprevus();
 }
 function getTotalEpgE() { return pochesE.reduce((s,p)=>s+p.montant,0); }
 function getTotalEpgM() { return pochesM.reduce((s,p)=>s+p.montant,0); }
 function getTotalEpg() { return getTotalEpgE() + getTotalEpgM(); }
+function getFixeE() { return pochesE.filter(p=>p.fixe).reduce((s,p)=>s+p.montant,0); }
+function getVariableE() { return pochesE.filter(p=>!p.fixe).reduce((s,p)=>s+p.montant,0); }
 
 function renderPoches(who) {
   const poches = who==='e' ? pochesE : pochesM;
@@ -1018,21 +1026,26 @@ function renderPoches(who) {
   const el = document.getElementById('poches-'+who);
   el.innerHTML = '';
   poches.forEach((p,i) => {
+    const isFixe = p.fixe === true;
     const row = document.createElement('div');
     row.style.cssText = 'display:grid;grid-template-columns:1fr 90px 24px;gap:8px;align-items:center';
+    const fixeBadge = isFixe ? `<span style="font-size:9px;background:rgba(122,133,163,.2);color:var(--muted);border-radius:3px;padding:1px 5px;margin-left:4px;vertical-align:middle">fixe</span>` : '';
     row.innerHTML = `
-      <input type="text" value="${p.name}" placeholder="Nom de la poche"
-        style="background:var(--input-bg);border:1px solid var(--input-border);border-radius:5px;color:var(--text);font-size:12px;padding:5px 8px;width:100%"
-        oninput="(who=>'${who}',pochesUpdate('${who}',${i},'name',this.value))()" />
+      <div style="display:flex;align-items:center">
+        <input type="text" value="${p.name}" placeholder="Nom de la poche"
+          style="background:${isFixe?'rgba(42,48,80,.3)':'var(--input-bg)'};border:1px solid var(--input-border);border-radius:5px;color:${isFixe?'var(--muted)':'var(--text)'};font-size:12px;padding:5px 8px;width:100%;${isFixe?'cursor:default':''}"
+          ${isFixe?'readonly':''} oninput="pochesUpdate('${who}',${i},'name',this.value)" />
+        ${fixeBadge}
+      </div>
       <div style="display:flex;align-items:center;gap:4px">
         <input type="number" value="${p.montant}" min="0" step="5"
-          style="background:var(--input-bg);border:1px solid var(--input-border);border-radius:5px;color:${color};font-family:var(--mono);font-size:13px;font-weight:500;padding:5px 6px;width:100%;text-align:right"
-          oninput="pochesUpdate('${who}',${i},'montant',this.value)" />
+          style="background:${isFixe?'rgba(42,48,80,.3)':'var(--input-bg)'};border:1px solid var(--input-border);border-radius:5px;color:${isFixe?'var(--muted)':color};font-family:var(--mono);font-size:13px;font-weight:500;padding:5px 6px;width:100%;text-align:right;${isFixe?'cursor:default':''}"
+          ${isFixe?'readonly':''} oninput="pochesUpdate('${who}',${i},'montant',this.value)" />
         <span style="color:var(--muted);font-size:12px">€</span>
       </div>
-      <button onclick="deletePoche('${who}',${i})"
-        style="background:none;border:none;color:var(--muted2);font-size:14px;cursor:pointer;padding:2px;line-height:1"
-        onmouseover="this.style.color='var(--danger)'" onmouseout="this.style.color='var(--muted2)'">✕</button>`;
+      <button onclick="${isFixe?'':'deletePoche(\''+who+'\','+i+')'}"
+        style="background:none;border:none;color:${isFixe?'transparent':'var(--muted2)'};font-size:14px;cursor:${isFixe?'default':'pointer'};padding:2px;line-height:1"
+        ${isFixe?'disabled':''} onmouseover="this.style.color='${isFixe?'transparent':'var(--danger)'}'" onmouseout="this.style.color='${isFixe?'transparent':'var(--muted2)'}'">${isFixe?'':'✕'}</button>`;
     el.appendChild(row);
   });
   syncEpargne();
@@ -1043,38 +1056,53 @@ function pochesUpdate(who, i, field, val) {
   syncEpargne();
 }
 function deletePoche(who, i) {
+  const arr = who==='e' ? pochesE : pochesM;
+  if (arr[i].fixe) return; // protection
   if (who==='e') pochesE.splice(i,1); else pochesM.splice(i,1);
   renderPoches(who);
 }
 function addPoche(who) {
   const arr = who==='e' ? pochesE : pochesM;
-  arr.push({ name:'Nouvelle poche', montant:0 });
+  arr.push({ name:'Nouvelle poche', montant:0, fixe:false });
   renderPoches(who);
-  // Focus le nom du dernier
   setTimeout(()=>{
-    const inputs = document.querySelectorAll('#poches-'+who+' input[type=text]');
+    const inputs = document.querySelectorAll('#poches-'+who+' input[type=text]:not([readonly])');
     if (inputs.length) { inputs[inputs.length-1].select(); }
   }, 50);
 }
 
 function syncEpargne() {
-  const surplus = getSurplusBase();
+  const surplusPerso = computeBudget(state).surplus;
+  const epgProgrammee = state.eEpg + state.mEpg;
+  const enveloppe = surplusPerso + epgProgrammee; // vraie enveloppe modulable
   const imprevus = getImprevus();
-  const dispo = surplus - imprevus;
+  const dispo = enveloppe - imprevus;
   const epgE = getTotalEpgE();
   const epgM = getTotalEpgM();
   const epgTot = epgE + epgM;
+  const fixeE = getFixeE();
   const reste = dispo - epgTot;
 
-  // Surplus base (réactif au budget)
-  document.getElementById('epg-surplus-base').textContent = fmt(surplus);
-  document.getElementById('epg-surplus-base').style.color = surplus>=0 ? 'var(--surplus)' : 'var(--danger)';
+  // Surplus base affiché
+  const surplusEl = document.getElementById('epg-surplus-base');
+  surplusEl.textContent = fmt(enveloppe);
+  surplusEl.style.color = enveloppe >= 0 ? 'var(--surplus)' : 'var(--danger)';
+
+  // Sous-détail surplus budgété
+  let subEl = document.getElementById('epg-surplus-detail');
+  if (!subEl) {
+    subEl = document.createElement('div');
+    subEl.id = 'epg-surplus-detail';
+    subEl.style.cssText = 'font-size:10px;color:var(--muted2);margin-top:3px';
+    surplusEl.after(subEl);
+  }
+  subEl.textContent = `Surplus ${fmt(surplusPerso)} + épargne prog. ${fmt(epgProgrammee)}`;
 
   // Dispo
   const dispoEl = document.getElementById('epg-dispo');
   dispoEl.textContent = dispo >= 0 ? fmt(dispo) : '−'+fmt(Math.abs(dispo));
-  dispoEl.style.color = dispo < 0 ? 'var(--danger)' : dispo < epgTot ? 'var(--warning)' : 'var(--surplus)';
-  document.getElementById('epg-dispo-sub').textContent = imprevus > 0 ? `${fmt(surplus)} − ${fmt(imprevus)} imprévus` : 'Surplus du mois';
+  dispoEl.style.color = dispo < 0 ? 'var(--danger)' : reste < 0 ? 'var(--warning)' : 'var(--surplus)';
+  document.getElementById('epg-dispo-sub').textContent = imprevus > 0 ? `${fmt(enveloppe)} − ${fmt(imprevus)} imprévus` : 'Enveloppe du mois';
 
   // Totaux poches
   document.getElementById('epg-e-total-lbl').textContent = fmt(epgE);
@@ -1083,35 +1111,44 @@ function syncEpargne() {
   // Reste label
   const resteEl = document.getElementById('epg-reste-lbl');
   if (reste < 0) {
-    resteEl.innerHTML = `<strong style="color:var(--danger)">Dépassement : ${fmt(Math.abs(reste))}</strong>`;
+    resteEl.innerHTML = `<strong style="color:var(--danger)">Dépasse l'enveloppe : ${fmt(Math.abs(reste))}</strong>`;
   } else if (reste === 0) {
-    resteEl.innerHTML = `<strong style="color:var(--surplus)">Budget épargne équilibré ✓</strong>`;
+    resteEl.innerHTML = `<strong style="color:var(--surplus)">Enveloppe parfaitement allouée ✓</strong>`;
   } else {
     resteEl.innerHTML = `Reste non affecté : <strong style="color:var(--surplus)">${fmt(reste)}</strong>`;
   }
 
-  // Jauge
+  // Jauge — fixe E | variable E | M | reste | dépassement
   const jaugeEl = document.getElementById('epg-jauge');
   const base = Math.max(dispo, epgTot, 1);
-  if (dispo <= 0) {
-    jaugeEl.innerHTML = `<div style="flex:1;background:var(--danger);opacity:.7"></div>`;
-  } else {
-    const pE = Math.min(epgE/base, 1);
-    const pM = Math.min(epgM/base, 1);
-    const pReste = Math.max(0, reste/base);
-    const pOver = reste < 0 ? Math.abs(reste)/base : 0;
-    jaugeEl.innerHTML =
-      `<div style="flex:${epgE};background:var(--emilie);opacity:.8;min-width:${epgE>0?2:0}px"></div>` +
-      `<div style="flex:${epgM};background:var(--mikael);opacity:.8;min-width:${epgM>0?2:0}px"></div>` +
-      (reste > 0 ? `<div style="flex:${reste};background:var(--surplus);opacity:.35"></div>` : '') +
-      (reste < 0 ? `<div style="flex:${Math.abs(reste)};background:var(--danger);opacity:.7"></div>` : '');
+  const varE = epgE - fixeE;
+  jaugeEl.innerHTML =
+    (fixeE > 0 ? `<div style="flex:${fixeE};background:var(--emilie);opacity:.5;min-width:2px" title="Épargne fixe Emilie ${fmt(fixeE)}"></div>` : '') +
+    (varE > 0  ? `<div style="flex:${varE};background:var(--emilie);opacity:.9;min-width:2px" title="Épargne variable Emilie ${fmt(varE)}"></div>` : '') +
+    (epgM > 0  ? `<div style="flex:${epgM};background:var(--mikael);opacity:.85;min-width:2px" title="Épargne Mikael ${fmt(epgM)}"></div>` : '') +
+    (reste > 0 ? `<div style="flex:${reste};background:var(--surplus);opacity:.3;min-width:2px"></div>` : '') +
+    (reste < 0 ? `<div style="flex:${Math.abs(reste)};background:var(--danger);opacity:.7;min-width:2px"></div>` : '');
+
+  // Légende jauge
+  let legendEl = document.getElementById('epg-jauge-legend');
+  if (!legendEl) {
+    legendEl = document.createElement('div');
+    legendEl.id = 'epg-jauge-legend';
+    legendEl.style.cssText = 'display:flex;gap:14px;margin-top:6px;flex-wrap:wrap;font-size:10px;color:var(--muted)';
+    jaugeEl.after(legendEl);
   }
+  legendEl.innerHTML =
+    `<span>🔵 Emilie fixe ${fmt(fixeE)}</span>` +
+    `<span style="opacity:.8">🔵 Emilie variable ${fmt(varE)}</span>` +
+    `<span>🟣 Mikael ${fmt(epgM)}</span>` +
+    (reste > 0 ? `<span>🟢 Reste ${fmt(reste)}</span>` : '') +
+    (reste < 0 ? `<span style="color:var(--danger)">🔴 Dépasse ${fmt(Math.abs(reste))}</span>` : '');
 
   // Projection annuelle
-  const note = reste < 0 ? ' — ⚠️ dépasse le disponible' : reste > 0 ? ` — ${fmt(reste)} non affecté/mois` : ' — budget parfaitement alloué';
+  const note = reste < 0 ? ` — ⚠️ dépasse l'enveloppe de ${fmt(Math.abs(reste))}/mois` : reste > 0 ? ` — ${fmt(reste)} non affecté/mois` : ' — enveloppe parfaitement allouée';
   document.getElementById('epg-proj-note').textContent = note;
   document.getElementById('epg-proj-grid').innerHTML = `
-    <div><div class="clabel">Épargne Emilie / an</div><div style="font-family:var(--mono);font-size:18px;color:var(--emilie)">${fmt(epgE*12)}</div></div>
+    <div><div class="clabel">Épargne Emilie / an</div><div style="font-family:var(--mono);font-size:18px;color:var(--emilie)">${fmt(epgE*12)}</div><div style="font-size:10px;color:var(--muted);margin-top:2px">dont fixe ${fmt(fixeE*12)}</div></div>
     <div><div class="clabel">Épargne Mikael / an</div><div style="font-family:var(--mono);font-size:18px;color:var(--mikael)">${fmt(epgM*12)}</div></div>
     <div><div class="clabel">Total couple / an</div><div style="font-family:var(--mono);font-size:18px;color:var(--surplus)">${fmt(epgTot*12)}</div></div>
     <div><div class="clabel">Projection 5 ans</div><div style="font-family:var(--mono);font-size:18px;color:var(--commun)">${fmt(epgTot*12*5)}</div>
