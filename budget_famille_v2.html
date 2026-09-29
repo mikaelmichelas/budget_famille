@@ -547,7 +547,6 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
       <button class="btn-reset" onclick="applyScenEpg('minimal')">🛡️ Minimal (50% base)</button>
       <button class="btn-reset" onclick="applyScenEpg('max')">🚀 Maximum disponible</button>
       <button class="btn-reset" onclick="applyScenEpg('travaux')">🎉 Post prêt travaux</button>
-      <button class="btn-reset" onclick="applyScenEpg('egal')">⚖️ Partage égal</button>
     </div>
   </div>
 
@@ -1154,27 +1153,59 @@ function syncEpargne() {
 }
 
 function applyScenEpg(key) {
-  const surplus = getSurplusBase();
   const dispo = getDispo();
   if (key==='base') {
-    pochesE = [{ name:'Confluence', montant:40 },{ name:'Livret A', montant:160 }];
-    pochesM = [{ name:'Livret A', montant:365 },{ name:'Bitstack BTC', montant:35 },{ name:'PEL Charly', montant:50 }];
+    pochesE = [
+      { name:'Confluence', montant:40, fixe:true },
+      { name:'Livret A (fixe)', montant:50, fixe:true },
+      { name:'Livret A (variable)', montant:110, fixe:false },
+    ];
+    pochesM = [
+      { name:'Livret A', montant:365, fixe:false },
+      { name:'Bitstack BTC', montant:35, fixe:false },
+      { name:'PEL Charly', montant:50, fixe:false },
+    ];
   } else if (key==='minimal') {
-    pochesE = [{ name:'Livret A', montant:Math.round(100) }];
-    pochesM = [{ name:'Livret A', montant:Math.round(200) }];
+    pochesE = [
+      { name:'Confluence', montant:40, fixe:true },
+      { name:'Livret A (fixe)', montant:50, fixe:true },
+    ];
+    pochesM = [{ name:'Livret A', montant:100, fixe:false }];
   } else if (key==='max') {
-    // Tout le dispo réparti 35/65
-    const eP = Math.round(dispo * 0.35);
-    const mP = Math.round(dispo * 0.65);
-    pochesE = [{ name:'Livret A', montant:eP }];
-    pochesM = [{ name:'Livret A', montant:mP }];
+    const varDispo = Math.max(0, dispo - 90); // 90€ fixes Emilie réservés
+    const eP = Math.round(varDispo * 0.35);
+    const mP = Math.round(varDispo * 0.65);
+    pochesE = [
+      { name:'Confluence', montant:40, fixe:true },
+      { name:'Livret A (fixe)', montant:50, fixe:true },
+      { name:'Livret A (variable)', montant:eP, fixe:false },
+    ];
+    pochesM = [{ name:'Livret A', montant:mP, fixe:false }];
   } else if (key==='travaux') {
-    pochesE = [{ name:'Confluence', montant:40 },{ name:'Livret A', montant:289 }];
-    pochesM = [{ name:'Livret A', montant:500 },{ name:'Bitstack BTC', montant:35 },{ name:'PEL Charly', montant:50 }];
-  } else if (key==='egal') {
-    const half = Math.round(dispo / 2);
-    pochesE = [{ name:'Livret A', montant:half }];
-    pochesM = [{ name:'Livret A', montant:half }];
+    // Fin prêt travaux : retire 259€ des dépenses communes ET les réaffecte en épargne
+    // Prêt Travaux = 259€ (129.5€ chacun dans les communes)
+    const idx = communesData.findIndex(d => d.name.toLowerCase().includes('travaux'));
+    if (idx >= 0) {
+      communesData[idx].total = 0;
+      communesData[idx].e = 0;
+      communesData[idx].m = 0;
+      state.eDepC = communesData.reduce((s,d)=>s+d.e,0);
+      state.mDepC = communesData.reduce((s,d)=>s+d.m,0);
+      renderCommunesTable();
+      renderDepBars();
+      updateAll();
+    }
+    // Réaffecter les 259€ libérés en épargne (130 Emilie / 129 Mikael)
+    pochesE = [
+      { name:'Confluence', montant:40, fixe:true },
+      { name:'Livret A (fixe)', montant:50, fixe:true },
+      { name:'Livret A (variable)', montant:240, fixe:false },
+    ];
+    pochesM = [
+      { name:'Livret A', montant:494, fixe:false },
+      { name:'Bitstack BTC', montant:35, fixe:false },
+      { name:'PEL Charly', montant:50, fixe:false },
+    ];
   }
   renderPoches('e');
   renderPoches('m');
