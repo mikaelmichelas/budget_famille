@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Budget Famille 2026</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg: #0f1117; --surface: #181c27; --card: #1e2332; --border: #2a3050;
+  --text: #e8ecf4; --muted: #7a85a3; --muted2: #4a5578;
+  --emilie: #6ec6f5; --mikael: #a78bfa; --commun: #34d399;
+  --warning: #f59e0b; --danger: #f87171; --surplus: #34d399;
+  --input-bg: #141827; --input-border: #323a5a;
+  --mono: 'DM Mono', monospace; --sans: 'DM Sans', sans-serif;
+}
+:root.light {
+  --bg: #f4f6fb; --surface: #eef0f7; --card: #ffffff; --border: #dde2f0;
+  --text: #1a1f35; --muted: #6b7494; --muted2: #a0a8c4;
+  --emilie: #1d8fc9; --mikael: #7c55e8; --commun: #0fa86a;
+  --warning: #c97d00; --danger: #d94f4f; --surplus: #0fa86a;
+  --input-bg: #f0f2fa; --input-border: #c8cedf;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 14px; min-height: 100vh; padding: 20px; }
+
+/* HEADER */
+.header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+.header h1 { font-size: 20px; font-weight: 600; letter-spacing: -0.4px; }
+.badge { font-family: var(--mono); font-size: 11px; background: var(--card); border: 1px solid var(--border); padding: 3px 8px; border-radius: 4px; color: var(--muted); }
+.surplus-badge { margin-left: auto; background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.25); color: var(--surplus); font-family: var(--mono); font-size: 13px; font-weight: 500; padding: 5px 14px; border-radius: 6px; }
+.surplus-badge.neg { background: rgba(248,113,113,0.1); border-color: rgba(248,113,113,0.25); color: var(--danger); }
+
+/* TABS */
+.tabs { display: flex; gap: 2px; margin-bottom: 20px; border-bottom: 1px solid var(--border); }
+.tab { background: none; border: none; color: var(--muted); font-family: var(--sans); font-size: 13px; font-weight: 500; padding: 8px 16px; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color .15s, border-color .15s; }
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--text); border-bottom-color: var(--emilie); }
+.panel { display: none; } .panel.active { display: block; }
+
+/* GRID */
+.g4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 16px; }
+.g3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 16px; }
+.g2 { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; margin-bottom: 16px; }
+
+/* CARDS */
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
+.card.warn { border-color: rgba(245,158,11,0.35); }
+.card.good { border-color: rgba(52,211,153,0.25); }
+.clabel { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 6px; }
+.cvalue { font-family: var(--mono); font-size: 24px; font-weight: 500; line-height: 1; }
+.csub { font-size: 11px; color: var(--muted); margin-top: 5px; }
+.ce { color: var(--emilie); } .cm { color: var(--mikael); } .cs { color: var(--surplus); } .cw { color: var(--warning); } .cd { color: var(--danger); }
+
+/* SECTION HEADER */
+.sh { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+
+/* EDITABLE INPUTS */
+.editable { display: inline-block; }
+.editable input {
+  background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 5px;
+  color: var(--text); font-family: var(--mono); font-size: inherit; font-weight: inherit;
+  padding: 2px 6px; width: 100px; text-align: right; transition: border-color .15s;
+}
+.editable input:focus { outline: none; border-color: var(--emilie); background: #1a1f35; }
+.editable input.changed { border-color: var(--warning); color: var(--warning); }
+.edit-hint { font-size: 10px; color: var(--muted2); margin-left: 4px; }
+
+/* TABLE */
+.dt { width: 100%; border-collapse: collapse; }
+.dt th { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--border); }
+.dt td { padding: 8px 10px; font-size: 13px; border-bottom: 1px solid rgba(42,48,80,0.4); vertical-align: middle; }
+.dt tr:last-child td { border-bottom: none; }
+.dt td.amt { font-family: var(--mono); text-align: right; white-space: nowrap; }
+.dt tr.sub td { background: rgba(42,48,80,0.5); font-weight: 600; }
+.dt tr:hover td { background: rgba(255,255,255,0.02); }
+.dt td input { background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 4px; color: var(--text); font-family: var(--mono); font-size: 12px; padding: 3px 6px; width: 90px; text-align: right; }
+.dt td input:focus { outline: none; border-color: var(--emilie); }
+.dt td input.changed { border-color: var(--warning); color: var(--warning); }
+
+/* BAR CHART */
+.bars { display: flex; flex-direction: column; gap: 9px; }
+.bar-row { display: grid; grid-template-columns: 170px 1fr 80px; align-items: center; gap: 10px; }
+.bar-name { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar-track { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 3px; transition: width .5s ease; }
+.bar-val { font-family: var(--mono); font-size: 12px; color: var(--muted); text-align: right; }
+
+/* PERSON CARD */
+.pcard { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
+.pname { font-size: 13px; font-weight: 600; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.dot.e { background: var(--emilie); } .dot.m { background: var(--mikael); }
+.pstat { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; font-size: 13px; }
+.pstat .lbl { color: var(--muted); font-size: 12px; }
+.pstat .val { font-family: var(--mono); font-weight: 500; }
+.divider { height: 1px; background: var(--border); margin: 8px 0; }
+
+/* SCENARIO */
+.scen-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 16px; }
+.scen-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; cursor: pointer; transition: border-color .15s, background .15s; }
+.scen-card.active { border-color: var(--emilie); background: rgba(110,198,245,0.06); }
+.scen-card:hover { border-color: var(--muted2); }
+.scen-label { font-size: 11px; color: var(--muted); margin-bottom: 5px; font-weight: 500; }
+.scen-value { font-family: var(--mono); font-size: 17px; font-weight: 500; color: var(--surplus); }
+.scen-rate { font-size: 10px; color: var(--muted); margin-top: 3px; }
+
+/* SIMULATION */
+.sim-panel { display: grid; grid-template-columns: 280px 1fr; gap: 16px; }
+.sim-controls { display: flex; flex-direction: column; gap: 10px; }
+.sim-group { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 14px; }
+.sim-group-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 10px; }
+.sim-field { margin-bottom: 10px; }
+.sim-field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+.sim-field input[type=range] { width: 100%; accent-color: var(--emilie); cursor: pointer; }
+.sim-field .range-val { font-family: var(--mono); font-size: 13px; font-weight: 500; float: right; }
+.sim-field input[type=number] { width: 100%; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 5px; color: var(--text); font-family: var(--mono); font-size: 13px; padding: 5px 8px; text-align: right; }
+.sim-field input[type=number]:focus { outline: none; border-color: var(--emilie); }
+.sim-result { display: flex; flex-direction: column; gap: 10px; }
+.sim-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(42,48,80,0.3); border-radius: 6px; font-size: 13px; }
+.sim-row .slbl { color: var(--muted); }
+.sim-row .sval { font-family: var(--mono); font-weight: 500; }
+.delta-pill { display: inline-block; font-family: var(--mono); font-size: 11px; padding: 1px 7px; border-radius: 10px; margin-left: 8px; }
+.delta-pill.pos { background: rgba(52,211,153,0.15); color: var(--surplus); }
+.delta-pill.neg { background: rgba(248,113,113,0.15); color: var(--danger); }
+.delta-pill.neu { background: rgba(122,133,163,0.15); color: var(--muted); }
+
+/* NOTE */
+.note { font-size: 11px; color: var(--muted); background: rgba(42,48,80,0.35); border-left: 3px solid var(--border); padding: 8px 12px; border-radius: 0 6px 6px 0; margin-top: 12px; }
+.note strong { color: var(--warning); }
+.note .ok { color: var(--surplus); font-weight: 600; }
+
+.mt12 { margin-top: 12px; } .mt16 { margin-top: 16px; }
+
+/* RESET BTN */
+.btn-reset { background: none; border: 1px solid var(--border); border-radius: 5px; color: var(--muted); font-family: var(--sans); font-size: 11px; padding: 4px 10px; cursor: pointer; transition: all .15s; }
+.btn-reset:hover { border-color: var(--muted2); color: var(--text); }
+.btn-apply { background: rgba(110,198,245,0.12); border: 1px solid rgba(110,198,245,0.3); border-radius: 5px; color: var(--emilie); font-family: var(--sans); font-size: 11px; padding: 4px 10px; cursor: pointer; transition: all .15s; }
+.btn-apply:hover { background: rgba(110,198,245,0.2); }
+
+/* THEME TOGGLE */
+.theme-toggle {
+  background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  padding: 5px 12px; font-family: var(--sans); font-size: 12px; font-weight: 500;
+  color: var(--muted); transition: all .2s; user-select: none;
+}
+.theme-toggle:hover { border-color: var(--muted2); color: var(--text); }
+.theme-toggle .toggle-track {
+  width: 28px; height: 16px; border-radius: 8px; background: var(--border);
+  position: relative; transition: background .2s; flex-shrink: 0;
+}
+.theme-toggle .toggle-thumb {
+  width: 12px; height: 12px; border-radius: 50%; background: var(--muted);
+  position: absolute; top: 2px; left: 2px; transition: left .2s, background .2s;
+}
+:root.light .toggle-track { background: var(--emilie); }
+:root.light .toggle-thumb { left: 14px; background: #fff; }
+/* Light mode overrides for hardcoded rgba */
+:root.light .card { box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+:root.light .dt tr.sub td { background: rgba(200,210,235,0.5); }
+:root.light .dt tr:hover td { background: rgba(0,0,0,0.025); }
+:root.light .note { background: rgba(200,210,235,0.4); border-left-color: var(--border); }
+:root.light .sim-row { background: rgba(200,210,235,0.3); }
+:root.light .highlight-pill,
+:root.light [style*="rgba(42,48,80"] { background: rgba(200,210,235,0.4) !important; }
+:root.light .scen-card { background: var(--card); }
+:root.light .scen-card.active { background: rgba(29,143,201,0.08); border-color: var(--emilie); }
+:root.light .sim-group { background: var(--card); }
+:root.light body { background: var(--bg); }
+
+@media (max-width:900px) {
+  .g4,.scen-grid { grid-template-columns: repeat(2,1fr); }
+  .g3 { grid-template-columns: 1fr 1fr; }
+  .sim-panel { grid-template-columns: 1fr; }
+  .bar-row { grid-template-columns: 120px 1fr 70px; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Budget Famille</h1>
+  <span class="badge">2026</span>
+  <span class="badge" id="mode-badge">Base</span>
+  <button class="theme-toggle" onclick="toggleTheme()" title="Changer le thème">
+    <span id="theme-icon">☀️</span>
+    <span id="theme-label">Clair</span>
+    <div class="toggle-track"><div class="toggle-thumb"></div></div>
+  </button>
+  <div class="surplus-badge" id="global-surplus">Surplus · +608 €/mois</div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="showPanel('vue',this)">Vue d'ensemble</button>
+  <button class="tab" onclick="showPanel('depenses',this)">Dépenses</button>
+  <button class="tab" onclick="showPanel('personnes',this)">Par personne</button>
+  <button class="tab" onclick="showPanel('epargne',this)">Épargne</button>
+  <button class="tab" onclick="showPanel('simulation',this)">⚡ Simulation</button>
+</div>
+
+<!-- ═══ PANEL VUE D'ENSEMBLE ═══ -->
+<div id="panel-vue" class="panel active">
+  <div class="g4">
+    <div class="card">
+      <div class="clabel">Revenus totaux</div>
+      <div class="cvalue" id="kpi-rev">6 637 €</div>
+      <div class="csub" id="kpi-rev-sub">Emilie + Mikael + CAF</div>
+      <div style="margin-top:10px">
+        <div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px">
+          <span class="ce" id="kpi-rev-e-lbl">E · —</span>
+          <span class="cm" id="kpi-rev-m-lbl">— · M</span>
+        </div>
+        <div style="display:flex;height:5px;border-radius:3px;overflow:hidden;gap:1px">
+          <div id="kpi-rev-bar-e" style="background:var(--emilie);opacity:.7;flex:2354"></div>
+          <div style="background:var(--border);opacity:.4;flex:308"></div>
+          <div id="kpi-rev-bar-m" style="background:var(--mikael);opacity:.7;flex:4129"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="clabel">Total dépenses</div>
+      <div class="cvalue" id="kpi-dep">5 429 €</div>
+      <div class="csub">Communes + perso</div>
+      <div style="margin-top:10px">
+        <div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px">
+          <span class="ce" id="kpi-dep-e-lbl">E · —</span>
+          <span class="cm" id="kpi-dep-m-lbl">— · M</span>
+        </div>
+        <div style="display:flex;height:5px;border-radius:3px;overflow:hidden;gap:1px">
+          <div id="kpi-dep-bar-e" style="background:var(--emilie);opacity:.7;flex:1859"></div>
+          <div id="kpi-dep-bar-m" style="background:var(--mikael);opacity:.7;flex:3570"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="clabel">Épargne programmée</div>
+      <div class="cvalue" id="kpi-epg">600 €</div>
+      <div class="csub" id="kpi-epg-sub">Emilie 200 · Mikael 400</div>
+      <div style="margin-top:10px">
+        <div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px">
+          <span class="ce" id="kpi-epg-e-lbl">E · —</span>
+          <span class="cm" id="kpi-epg-m-lbl">— · M</span>
+        </div>
+        <div style="display:flex;height:5px;border-radius:3px;overflow:hidden;gap:1px">
+          <div id="kpi-epg-bar-e" style="background:var(--emilie);opacity:.7;flex:200"></div>
+          <div id="kpi-epg-bar-m" style="background:var(--mikael);opacity:.7;flex:400"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="clabel">Surplus libre</div>
+      <div class="cvalue cs" id="kpi-sur">608 €</div>
+      <div style="margin-top:10px;display:flex;flex-direction:column;gap:5px">
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px">
+          <span style="display:flex;align-items:center;gap:5px"><span class="dot e"></span>Emilie</span>
+          <span class="mono ce" id="kpi-sur-e">+141 €</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px">
+          <span style="display:flex;align-items:center;gap:5px"><span class="dot m"></span>Mikael</span>
+          <span class="mono cm" id="kpi-sur-m">+159 €</span>
+        </div>
+        <div style="height:1px;background:var(--border);margin:2px 0"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px">
+          <span style="display:flex;align-items:center;gap:5px">
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--commun);display:inline-block"></span>
+            Compte joint (CAF)
+          </span>
+          <span class="mono cs" id="kpi-sur-caf">+308 €</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Barre équilibre -->
+  <div class="card">
+    <div class="sh">Équilibre mensuel du budget</div>
+    <div style="margin-bottom:8px;font-size:12px;color:var(--muted)">Répartition des <span id="eq-total" style="color:var(--text);font-family:var(--mono)">6 637 €</span> de revenus mensuels</div>
+    <div style="display:flex;height:28px;border-radius:7px;overflow:hidden;gap:2px" id="eq-bar">
+      <div id="eq-dep" style="background:rgba(167,139,250,0.5);flex:5429;display:flex;align-items:center;justify-content:center;font-size:11px;font-family:var(--mono)">Dép. 5 429 €</div>
+      <div id="eq-epg" style="background:rgba(110,198,245,0.6);flex:600;display:flex;align-items:center;justify-content:center;font-size:10px"></div>
+      <div id="eq-sur" style="background:rgba(52,211,153,0.6);flex:608;display:flex;align-items:center;justify-content:center;font-size:10px"></div>
+    </div>
+    <div style="display:flex;gap:16px;margin-top:8px;font-size:11px;color:var(--muted)">
+      <span>🟣 Dépenses <span class="val cm" id="eq-dep-lbl">5 429 €</span></span>
+      <span>🔵 Épargne <span id="eq-epg-lbl" style="font-family:var(--mono)">600 €</span></span>
+      <span>🟢 Surplus <span id="eq-sur-lbl" style="font-family:var(--mono);color:var(--surplus)">608 €</span></span>
+    </div>
+  </div>
+
+  <!-- CAF slider -->
+  <div class="card mt12">
+    <div class="sh">Allocations familiales CAF — couple
+      <span style="font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted2)">Distinct du SFT inclus dans le salaire d'Emilie</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center">
+      <div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:6px">
+          <span>0 €</span>
+          <span>600 €</span>
+        </div>
+        <input type="range" id="caf-slider" min="0" max="600" step="5" value="308"
+          style="width:100%;accent-color:var(--commun);cursor:pointer"
+          oninput="updateCAF(this.value)">
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted2);margin-top:4px">
+          <span>Aucune allocation</span>
+          <span>← Ajuster dès réception →</span>
+          <span>Montant actuel</span>
+        </div>
+      </div>
+      <div style="text-align:center;min-width:90px">
+        <div style="font-family:var(--mono);font-size:28px;font-weight:600;color:var(--commun)" id="caf-val">308 €</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px">/mois</div>
+        <div style="font-size:10px;color:var(--muted2);margin-top:4px" id="caf-delta"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Highlights -->
+  <div class="card mt12">
+    <div class="sh">Points clés</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px">
+      <div style="background:rgba(42,48,80,0.5);border:1px solid var(--border);border-radius:16px;padding:5px 12px;font-size:12px;display:flex;gap:6px;align-items:center">🏠 Prêts immo + travaux + solaire <span style="font-family:var(--mono);color:var(--warning)">1 462 €/mois</span></div>
+      <div style="background:rgba(42,48,80,0.5);border:1px solid var(--border);border-radius:16px;padding:5px 12px;font-size:12px;display:flex;gap:6px;align-items:center">📚 Scolarité / études <span style="font-family:var(--mono);color:var(--emilie)">365 €/mois</span></div>
+      <div style="background:rgba(42,48,80,0.5);border:1px solid var(--border);border-radius:16px;padding:5px 12px;font-size:12px;display:flex;gap:6px;align-items:center">🛒 Alimentation totale <span style="font-family:var(--mono);color:var(--commun)">500 €/mois</span></div>
+      <div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:16px;padding:5px 12px;font-size:12px;display:flex;gap:6px;align-items:center">🎉 Fin prêt travaux <span style="font-family:var(--mono);color:var(--warning)">déc. 2026 → +259 €</span></div>
+    </div>
+    <div class="note">
+      <strong>Changements en cours :</strong> Augmentation Mikael <span class="ok">+~191 €/mois net</span> · Perte SFT Coline pour Emilie (montant à préciser — estimation ~80 €). Utilisez l'onglet <strong>⚡ Simulation</strong> pour tester l'impact.
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PANEL DÉPENSES ═══ -->
+<div id="panel-depenses" class="panel">
+  <div class="g2">
+    <div class="card">
+      <div class="clabel">Communes / mois</div>
+      <div class="cvalue cs" id="dep-comm-total">3 400 €</div>
+      <div class="csub">Partagées selon revenus</div>
+      <!-- BARRE EMILIE / MIKAEL -->
+      <div style="margin-top:12px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
+          <span class="ce" id="dep-comm-e-lbl">Emilie · 1 307 €</span>
+          <span class="cm" id="dep-comm-m-lbl">1 093 € · Mikael</span>
+        </div>
+        <div style="display:flex;height:8px;border-radius:4px;overflow:hidden;gap:2px" id="dep-comm-bar">
+          <div id="dep-comm-bar-e" style="background:var(--emilie);opacity:.75;flex:1307"></div>
+          <div id="dep-comm-bar-m" style="background:var(--mikael);opacity:.75;flex:1093"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="clabel">Personnelles / mois</div>
+      <div class="cvalue" style="color:var(--muted)" id="dep-perso-total">2 029 €</div>
+      <div class="csub" id="dep-perso-sub">Emilie 552 · Mikael 1 477</div>
+      <!-- BARRE EMILIE / MIKAEL -->
+      <div style="margin-top:12px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
+          <span class="ce" id="dep-perso-e-lbl">Emilie · 552 €</span>
+          <span class="cm" id="dep-perso-m-lbl">1 477 € · Mikael</span>
+        </div>
+        <div style="display:flex;height:8px;border-radius:4px;overflow:hidden;gap:2px" id="dep-perso-bar">
+          <div id="dep-perso-bar-e" style="background:var(--emilie);opacity:.75;flex:552"></div>
+          <div id="dep-perso-bar-m" style="background:var(--mikael);opacity:.75;flex:1477"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="sh">Top postes communes <span style="font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted2)">Cliquez les montants pour modifier</span></div>
+    <div class="bars" id="dep-bars"></div>
+  </div>
+  <div class="card mt12">
+    <div class="sh">Dépenses communes — détail complet <button class="btn-reset" onclick="resetCommunes()">Réinitialiser</button></div>
+    <table class="dt"><thead><tr><th>Poste</th><th style="text-align:right">Total</th><th style="text-align:right">Emilie</th><th style="text-align:right">Mikael</th></tr></thead>
+    <tbody id="communes-tbl"></tbody></table>
+  </div>
+  <div class="g2 mt12">
+    <div class="card"><div class="sh">Perso Emilie <button class="btn-reset" onclick="resetPerso('e')">Réinitialiser</button></div><table class="dt"><tbody id="perso-e-tbl"></tbody></table></div>
+    <div class="card"><div class="sh">Perso Mikael <button class="btn-reset" onclick="resetPerso('m')">Réinitialiser</button></div><table class="dt"><tbody id="perso-m-tbl"></tbody></table></div>
+  </div>
+</div>
+
+<!-- ═══ PANEL PERSONNES ═══ -->
+<div id="panel-personnes" class="panel">
+  <div class="g2">
+    <div class="pcard">
+      <div class="pname"><span class="dot e"></span> Emilie</div>
+      <div class="pstat"><span class="lbl">Salaire net <span style="font-size:10px;color:var(--muted2)">(SFT inclus)</span></span><span class="val"><span class="editable"><input type="number" id="e-sal" value="2200" oninput="updateAll()" /> €</span></span></div>
+      <div class="pstat"><span class="lbl">Revenu net</span><span class="val ce" id="e-net">2 200 €</span></div>
+      <div class="divider"></div>
+      <div class="pstat"><span class="lbl">Dépenses communes</span><span class="val" id="e-dep-c">1 307 €</span></div>
+      <div class="pstat"><span class="lbl">Dépenses perso</span><span class="val" id="e-dep-p">552 €</span></div>
+      <div class="pstat"><span class="lbl">Total dépenses</span><span class="val cd" id="e-dep-t">1 859 €</span></div>
+      <div class="divider"></div>
+      <div class="pstat"><span class="lbl">Épargne</span><span class="val ce"><span class="editable"><input type="number" id="e-epg" value="200" oninput="updateAll()" /> €</span></span></div>
+      <div class="pstat"><span class="lbl">Surplus mensuel</span><span class="val cs" id="e-sur">−</span></div>
+      <div class="pstat"><span class="lbl">Taux d'épargne</span><span class="val ce" id="e-txepg">−</span></div>
+    </div>
+    <div class="pcard">
+      <div class="pname"><span class="dot m"></span> Mikael</div>
+      <div class="pstat"><span class="lbl">Salaire net principal</span><span class="val"><span class="editable"><input type="number" id="m-sal" value="2895" oninput="updateAll()" /> €</span></span></div>
+      <div class="pstat"><span class="lbl">Salaire complémentaire</span><span class="val"><span class="editable"><input type="number" id="m-sal2" value="1234" oninput="updateAll()" /> €</span></span></div>
+      <div class="pstat"><span class="lbl">Revenu net total</span><span class="val cm" id="m-net">4 129 €</span></div>
+      <div class="divider"></div>
+      <div class="pstat"><span class="lbl">Dépenses communes</span><span class="val" id="m-dep-c">2 093 €</span></div>
+      <div class="pstat"><span class="lbl">Dépenses perso</span><span class="val" id="m-dep-p">1 477 €</span></div>
+      <div class="pstat"><span class="lbl">Total dépenses</span><span class="val cd" id="m-dep-t">3 570 €</span></div>
+      <div class="divider"></div>
+      <div class="pstat"><span class="lbl">Épargne</span><span class="val cm"><span class="editable"><input type="number" id="m-epg" value="400" oninput="updateAll()" /> €</span></span></div>
+      <div class="pstat"><span class="lbl">Surplus mensuel</span><span class="val cs" id="m-sur">−</span></div>
+      <div class="pstat"><span class="lbl">Taux d'épargne</span><span class="val cm" id="m-txepg">−</span></div>
+    </div>
+  </div>
+  <!-- Barre visuelle perso -->
+  <div class="card">
+    <div class="sh">Revenus vs Dépenses vs Épargne</div>
+    <div style="display:flex;flex-direction:column;gap:22px;padding-top:8px">
+
+      <!-- EMILIE -->
+      <div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:12px">
+          <span class="ce" style="font-weight:600">Emilie</span>
+          <span style="color:var(--muted);font-family:var(--mono)" id="e-bar-lbl">2 354 € revenu</span>
+        </div>
+        <!-- Étiquettes au-dessus -->
+        <div style="display:flex;gap:2px;margin-bottom:3px;font-size:10px;font-family:var(--mono)" id="e-bar-labels"></div>
+        <!-- Barre -->
+        <div style="display:flex;gap:2px;height:26px;border-radius:6px;overflow:hidden" id="e-bar"></div>
+        <!-- Légende inline -->
+        <div style="display:flex;gap:16px;margin-top:5px;font-size:10px;color:var(--muted)" id="e-bar-legend"></div>
+      </div>
+
+      <!-- MIKAEL -->
+      <div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:12px">
+          <span class="cm" style="font-weight:600">Mikael</span>
+          <span style="color:var(--muted);font-family:var(--mono)" id="m-bar-lbl">4 283 € revenu</span>
+        </div>
+        <!-- Étiquettes au-dessus -->
+        <div style="display:flex;gap:2px;margin-bottom:3px;font-size:10px;font-family:var(--mono)" id="m-bar-labels"></div>
+        <!-- Barre -->
+        <div style="display:flex;gap:2px;height:26px;border-radius:6px;overflow:hidden" id="m-bar"></div>
+        <!-- Légende inline -->
+        <div style="display:flex;gap:16px;margin-top:5px;font-size:10px;color:var(--muted)" id="m-bar-legend"></div>
+      </div>
+    </div>
+  </div>
+  <div class="note mt12">Les surplus individuels n'incluent pas la CAF commune (<strong id="note-caf-val">308 €</strong>/mois) — celle-ci appartient au foyer. Surplus couple = Emilie + Mikael + CAF = surplus affiché en header.</div>
+</div>
+
+<!-- ═══ PANEL ÉPARGNE ═══ -->
+<div id="panel-epargne" class="panel">
+
+  <!-- ── ZONE 1 : SURPLUS DU MOIS ── -->
+  <div class="card" style="margin-bottom:12px">
+    <div class="sh">💡 Surplus disponible ce mois-ci
+      <span style="font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted2)">Ajuste les imprévus pour recalculer</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:12px;align-items:end">
+      <div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Surplus budgété</div>
+        <div style="font-family:var(--mono);font-size:20px;font-weight:500;color:var(--surplus)" id="epg-surplus-base">608 €</div>
+        <div style="font-size:10px;color:var(--muted2);margin-top:2px">Calculé depuis vos revenus/dépenses</div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Imprévus du mois <span style="color:var(--danger)">−</span></div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <input type="number" id="epg-imprevus" value="0" min="0" step="10"
+            style="width:100%;background:var(--input-bg);border:1px solid var(--input-border);border-radius:6px;color:var(--danger);font-family:var(--mono);font-size:18px;font-weight:500;padding:4px 10px;text-align:right"
+            oninput="syncEpargne()" />
+          <span style="color:var(--muted);font-size:14px">€</span>
+        </div>
+        <div style="font-size:10px;color:var(--muted2);margin-top:4px">Réparation, soin, achat exceptionnel…</div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Disponible réel</div>
+        <div style="font-family:var(--mono);font-size:22px;font-weight:600" id="epg-dispo">608 €</div>
+        <div style="font-size:10px;color:var(--muted2);margin-top:2px" id="epg-dispo-sub">Surplus − imprévus</div>
+      </div>
+      <div>
+        <button class="btn-reset" onclick="document.getElementById('epg-imprevus').value=0;syncEpargne()">Réinitialiser</button>
+      </div>
+    </div>
+
+    <!-- Jauge surplus -->
+    <div style="margin-top:14px">
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:4px">
+        <span>Répartition du disponible</span>
+        <span id="epg-reste-lbl">Reste non affecté : <strong>608 €</strong></span>
+      </div>
+      <div style="height:10px;border-radius:5px;background:var(--border);overflow:hidden;display:flex;gap:1px" id="epg-jauge"></div>
+      <div style="display:flex;gap:14px;margin-top:6px;flex-wrap:wrap;font-size:10px;color:var(--muted)">
+        <span>🔵 Épargne Emilie</span><span>🟣 Épargne Mikael</span><span>🟢 Non affecté</span><span>🔴 Dépassement</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ZONE 2 : RÉPARTITION PAR POCHE ── -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+
+    <!-- EMILIE -->
+    <div class="card">
+      <div class="sh"><span class="dot e" style="margin-right:6px"></span>Poches Emilie
+        <span id="epg-e-total-lbl" style="font-family:var(--mono);font-size:12px;color:var(--emilie);font-weight:600;text-transform:none;letter-spacing:0">200 €</span>
+      </div>
+      <div id="poches-e" style="display:flex;flex-direction:column;gap:8px"></div>
+      <button onclick="addPoche('e')" style="margin-top:10px;width:100%;background:none;border:1px dashed var(--border);border-radius:6px;color:var(--muted);font-size:12px;padding:6px;cursor:pointer;transition:all .15s"
+        onmouseover="this.style.borderColor='var(--emilie)';this.style.color='var(--emilie)'"
+        onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">+ Ajouter une poche</button>
+    </div>
+
+    <!-- MIKAEL -->
+    <div class="card">
+      <div class="sh"><span class="dot m" style="margin-right:6px"></span>Poches Mikael
+        <span id="epg-m-total-lbl" style="font-family:var(--mono);font-size:12px;color:var(--mikael);font-weight:600;text-transform:none;letter-spacing:0">400 €</span>
+      </div>
+      <div id="poches-m" style="display:flex;flex-direction:column;gap:8px"></div>
+      <button onclick="addPoche('m')" style="margin-top:10px;width:100%;background:none;border:1px dashed var(--border);border-radius:6px;color:var(--muted);font-size:12px;padding:6px;cursor:pointer;transition:all .15s"
+        onmouseover="this.style.borderColor='var(--mikael)';this.style.color='var(--mikael)'"
+        onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">+ Ajouter une poche</button>
+    </div>
+  </div>
+
+  <!-- ── ZONE 3 : SCÉNARIOS RAPIDES + PROJECTION ── -->
+  <div class="card" style="margin-bottom:12px">
+    <div class="sh">Scénarios rapides</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn-reset" onclick="applyScenEpg('base')">📌 Base actuelle</button>
+      <button class="btn-reset" onclick="applyScenEpg('minimal')">🛡️ Minimal (50% base)</button>
+      <button class="btn-reset" onclick="applyScenEpg('max')">🚀 Maximum disponible</button>
+      <button class="btn-reset" onclick="applyScenEpg('travaux')">🎉 Post prêt travaux</button>
+      <button class="btn-reset" onclick="applyScenEpg('egal')">⚖️ Partage égal</button>
+    </div>
+  </div>
+
+  <!-- ── ZONE 4 : PROJECTION ANNUELLE ── -->
+  <div class="card warn">
+    <div class="sh">📈 Projection annuelle <span id="epg-proj-note" style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);font-size:11px"></span></div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding-top:4px" id="epg-proj-grid"></div>
+  </div>
+</div>
+
+<!-- ═══ PANEL SIMULATION ═══ -->
+<div id="panel-simulation" class="panel">
+  <div class="sim-panel">
+    <!-- CONTRÔLES -->
+    <div class="sim-controls">
+      <div class="sim-group">
+        <div class="sim-group-title"><span class="dot e"></span> Emilie</div>
+        <div class="sim-field">
+          <label>Salaire net <span style="font-size:10px;color:var(--muted2)">(SFT inclus)</span> <span class="range-val ce" id="sl-e-sal-v">2 200 €</span></label>
+          <input type="range" id="sl-e-sal" min="1500" max="4000" step="50" value="2200" oninput="syncSim()">
+        </div>
+        <div class="sim-field">
+          <label>Épargne mensuelle <span class="range-val ce" id="sl-e-epg-v">200 €</span></label>
+          <input type="range" id="sl-e-epg" min="0" max="800" step="10" value="200" oninput="syncSim()">
+        </div>
+        <div class="sim-field">
+          <label>Dépenses perso <span class="range-val" id="sl-e-dep-v">552 €</span></label>
+          <input type="range" id="sl-e-dep" min="200" max="1200" step="10" value="552" oninput="syncSim()">
+        </div>
+      </div>
+      <div class="sim-group">
+        <div class="sim-group-title"><span class="dot m"></span> Mikael</div>
+        <div class="sim-field">
+          <label>Salaire principal <span class="range-val cm" id="sl-m-sal-v">2 895 €</span></label>
+          <input type="range" id="sl-m-sal" min="1500" max="6000" step="50" value="2895" oninput="syncSim()">
+        </div>
+        <div class="sim-field">
+          <label>Salaire complémentaire <span class="range-val cm" id="sl-m-sal2-v">1 234 €</span></label>
+          <input type="range" id="sl-m-sal2" min="0" max="3000" step="50" value="1234" oninput="syncSim()">
+        </div>
+        <div class="sim-field">
+          <label>Épargne mensuelle <span class="range-val cm" id="sl-m-epg-v">400 €</span></label>
+          <input type="range" id="sl-m-epg" min="0" max="1200" step="10" value="400" oninput="syncSim()">
+        </div>
+        <div class="sim-field">
+          <label>Dépenses perso <span class="range-val" id="sl-m-dep-v">1 477 €</span></label>
+          <input type="range" id="sl-m-dep" min="500" max="3000" step="10" value="1477" oninput="syncSim()">
+        </div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-reset" style="flex:1" onclick="resetSim()">Réinitialiser</button>
+        <button class="btn-apply" style="flex:1" onclick="applySimToBase()">Appliquer au budget</button>
+      </div>
+      <!-- Preset: changements actuels -->
+      <div class="sim-group">
+        <div class="sim-group-title">Scénarios rapides</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <button class="btn-reset" style="width:100%;text-align:left;padding:7px 10px" onclick="applyPreset('now')">📌 Situation actuelle (base)</button>
+          <button class="btn-reset" style="width:100%;text-align:left;padding:7px 10px" onclick="applyPreset('changes')">⚡ Aug. Mikael +191€ · Perte SFT -80€</button>
+          <button class="btn-reset" style="width:100%;text-align:left;padding:7px 10px" onclick="applyPreset('travaux')">🎉 + Fin prêt travaux déc. 2026</button>
+          <button class="btn-reset" style="width:100%;text-align:left;padding:7px 10px" onclick="applyPreset('optimiste')">🚀 Augmentations + fin travaux + épargne 15%</button>
+        </div>
+      </div>
+    </div>
+    <!-- RÉSULTATS -->
+    <div>
+      <div class="card" style="margin-bottom:10px">
+        <div class="sh">Impact simulé vs base</div>
+        <div class="sim-result" id="sim-results"></div>
+      </div>
+      <div class="card">
+        <div class="sh">Projection annuelle</div>
+        <div id="sim-annual" style="display:flex;gap:12px;flex-wrap:wrap;padding-top:4px"></div>
+      </div>
+      <div class="note mt12" id="sim-note"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// DONNÉES DE BASE
+// ══════════════════════════════════════════
+const BASE = {
+  // Salaires nets réels. SFT inclus dans eSal pour Emilie.
+  // Impôts dans les dépenses perso. TaxRate = 0.
+  eSal: 2200, eSal2: 0, eSft: 0, eTaxRate: 0,
+  mSal: 2895, mSal2: 1234, mTaxRate: 0,
+  caf: 308,
+  eEpg: 200, mEpg: 400,
+  eDepP: 552.0, mDepP: 1477.0,
+  eDepC: 1306.835, mDepC: 2093.005,
+};
+
+const communes = [
+  { name:"Prêt immobilier", total:963, e:120.375, m:842.625 },
+  { name:"Prêt Travaux", total:259, e:129.5, m:129.5 },
+  { name:"Panneaux solaires", total:240, e:120, m:120 },
+  { name:"EDF mensualité", total:195, e:97.5, m:97.5 },
+  { name:"Courses alimentaires", total:250, e:125, m:125 },
+  { name:"Boulangerie/Boucherie", total:250, e:125, m:125 },
+  { name:"Taxe foncière/Impôt", total:193, e:96.5, m:96.5 },
+  { name:"Assur. Groupama hab.", total:110.76, e:55.38, m:55.38 },
+  { name:"Assur. Tesla", total:113.02, e:0, m:113.02 },
+  { name:"Mutuelle famille", total:110, e:55, m:55 },
+  { name:"Scolarité Charly→Robin", total:165, e:82.5, m:82.5 },
+  { name:"Restaurants", total:100, e:50, m:50 },
+  { name:"Assur. Peugeot 208", total:68.51, e:68.51, m:0 },
+  { name:"Pharmacie/Santé", total:60, e:30, m:30 },
+  { name:"Loisirs communs", total:60, e:30, m:30 },
+  { name:"Eau", total:40, e:20, m:20 },
+  { name:"Internet + téléphone Charly", total:37, e:18.5, m:18.5 },
+  { name:"Frais gestion BP", total:26.80, e:13.4, m:13.4 },
+  { name:"Assur. prêt Emilie", total:19.67, e:19.67, m:0 },
+  { name:"Assur. prêt Mikael", total:39.08, e:0, m:39.08 },
+  { name:"PEL Charly", total:50, e:25, m:25 },
+  { name:"Bricolage/Jardinerie", total:50, e:25, m:25 },
+];
+const persoE = [
+  { name:"Études Coline", v:200 },{ name:"Cadeaux", v:85 },
+  { name:"Vacances", v:62.5 },{ name:"Loisirs perso", v:100 },
+  { name:"SFR iPhone", v:42 },{ name:"Impôts", v:55 },
+  { name:"Prévoyance BP", v:3.47 },{ name:"Prévoyance CA", v:4 },
+];
+const persoM = [
+  { name:"Pension alimentaire", v:250 },{ name:"Prêt Tesla", v:300 },
+  { name:"Péage", v:150 },{ name:"Psychanalyse", v:140 },
+  { name:"Loisirs perso", v:200 },{ name:"Vacances", v:100 },
+  { name:"Cadeaux", v:87.5 },{ name:"Impôts", v:189.93 },
+  { name:"Abonnement IA", v:22 },{ name:"Netflix", v:7.99 },
+  { name:"Abonnement Tesla", v:10 },{ name:"Amazon Prime", v:6.99 },
+  { name:"Abonnement Google", v:2 },{ name:"SFR Red", v:1.99 },
+  { name:"Prévoyance BP", v:8.53 },
+];
+
+// ══════════════════════════════════════════
+// CALCULS CORE
+// ══════════════════════════════════════════
+function calcNet(sal, sal2, sft, taxRate) {
+  return (sal + sal2) * (1 - taxRate) + (sft || 0);
+}
+function computeBudget(o) {
+  const eNet = calcNet(o.eSal, o.eSal2||0, o.eSft, o.eTaxRate);
+  const mNet = calcNet(o.mSal, o.mSal2||0, 0, o.mTaxRate);
+  const totalRev = eNet + mNet + o.caf;
+  const totalDep = o.eDepC + o.mDepC + o.eDepP + o.mDepP;
+  const totalEpg = o.eEpg + o.mEpg;
+  const surplus = totalRev - totalDep - totalEpg;
+  // Surplus individuel = revenu perso uniquement (CAF = commun, pas attribuée à l'un ou l'autre)
+  const eSurplus = eNet - o.eDepC - o.eDepP - o.eEpg;
+  const mSurplus = mNet - o.mDepC - o.mDepP - o.mEpg;
+  // cafE/cafM conservés pour affichage des barres (revenu total de référence)
+  const revRatio = (eNet + mNet) > 0 ? eNet / (eNet + mNet) : 0.5;
+  const cafE = o.caf * revRatio;
+  const cafM = o.caf * (1 - revRatio);
+  return { eNet, mNet, totalRev, totalDep, totalEpg, surplus, eSurplus, mSurplus, cafE, cafM };
+}
+
+// ══════════════════════════════════════════
+// ÉTAT EN DIRECT (modifiable)
+// ══════════════════════════════════════════
+let state = { ...BASE };
+
+function fmt(n) { return n.toLocaleString('fr-FR', {maximumFractionDigits:0}) + ' €'; }
+function fmtd(n) { const s = n >= 0 ? '+' : ''; return s + n.toLocaleString('fr-FR', {maximumFractionDigits:0}) + ' €'; }
+function fmtPct(n) { return (n*100).toFixed(1) + '%'; }
+
+function updateCAF(val) {
+  const v = parseFloat(val)||0;
+  state.caf = v;
+  const delta = v - BASE.caf;
+  document.getElementById('caf-val').textContent = fmt(v);
+  const noteCaf = document.getElementById('note-caf-val');
+  if (noteCaf) noteCaf.textContent = fmt(v);
+  const deltaEl = document.getElementById('caf-delta');
+  if (Math.abs(delta) < 1) {
+    deltaEl.textContent = 'Montant de base';
+    deltaEl.style.color = 'var(--muted2)';
+  } else {
+    deltaEl.textContent = (delta > 0 ? '+' : '') + delta.toFixed(0) + ' € vs base';
+    deltaEl.style.color = delta > 0 ? 'var(--surplus)' : 'var(--danger)';
+  }
+  document.getElementById('caf-slider').value = v;
+  updateAll();
+}
+
+function updateAll() {
+  // Lire les champs "Par personne"
+  const fields = {
+    eSal:'e-sal', eEpg:'e-epg',
+    mSal:'m-sal', mSal2:'m-sal2', mEpg:'m-epg'
+  };
+  for (const [k,id] of Object.entries(fields)) {
+    const el = document.getElementById(id);
+    if (el) {
+      const v = parseFloat(el.value)||0;
+      state[k] = v;
+      el.classList.toggle('changed', v !== BASE[k]);
+    }
+  }
+  const b = computeBudget(state);
+
+  // KPIs
+  document.getElementById('kpi-rev').textContent = fmt(b.totalRev);
+  document.getElementById('kpi-dep').textContent = fmt(b.totalDep);
+  document.getElementById('kpi-epg').textContent = fmt(b.totalEpg);
+  document.getElementById('kpi-sur').textContent = fmtd(b.surplus);
+  // Décomposition surplus
+  const surE = document.getElementById('kpi-sur-e');
+  const surM = document.getElementById('kpi-sur-m');
+  const surCaf = document.getElementById('kpi-sur-caf');
+  if (surE) {
+    surE.textContent = fmtd(b.eSurplus);
+    surE.style.color = b.eSurplus >= 0 ? 'var(--emilie)' : 'var(--danger)';
+    surM.textContent = fmtd(b.mSurplus);
+    surM.style.color = b.mSurplus >= 0 ? 'var(--mikael)' : 'var(--danger)';
+    surCaf.textContent = fmtd(state.caf);
+  }
+  const sb = document.getElementById('global-surplus');
+  sb.textContent = 'Surplus · ' + fmtd(b.surplus) + '/mois';
+  sb.className = 'surplus-badge' + (b.surplus < 0 ? ' neg' : '');
+
+  // Mini-barres KPI — Vue d'ensemble
+  const eDepTot = state.eDepC + state.eDepP;
+  const mDepTot = state.mDepC + state.mDepP;
+  // Revenus
+  document.getElementById('kpi-rev-e-lbl').textContent = 'E · ' + fmt(b.eNet);
+  document.getElementById('kpi-rev-m-lbl').textContent = fmt(b.mNet) + ' · M';
+  document.getElementById('kpi-rev-bar-e').style.flex = b.eNet;
+  document.getElementById('kpi-rev-bar-m').style.flex = b.mNet;
+  // Dépenses
+  document.getElementById('kpi-dep-e-lbl').textContent = 'E · ' + fmt(eDepTot);
+  document.getElementById('kpi-dep-m-lbl').textContent = fmt(mDepTot) + ' · M';
+  document.getElementById('kpi-dep-bar-e').style.flex = eDepTot;
+  document.getElementById('kpi-dep-bar-m').style.flex = mDepTot;
+  // Épargne
+  document.getElementById('kpi-epg-e-lbl').textContent = 'E · ' + fmt(state.eEpg);
+  document.getElementById('kpi-epg-m-lbl').textContent = fmt(state.mEpg) + ' · M';
+  document.getElementById('kpi-epg-bar-e').style.flex = state.eEpg;
+  document.getElementById('kpi-epg-bar-m').style.flex = state.mEpg;
+  document.getElementById('kpi-epg-sub').textContent = 'Emilie ' + fmt(state.eEpg) + ' · Mikael ' + fmt(state.mEpg);
+
+  // Barre équilibre
+  const tot = b.totalRev;
+  document.getElementById('eq-total').textContent = fmt(tot);
+  document.getElementById('eq-dep').style.flex = b.totalDep;
+  document.getElementById('eq-epg').style.flex = b.totalEpg;
+  document.getElementById('eq-sur').style.flex = Math.max(b.surplus, 0);
+  document.getElementById('eq-dep').textContent = 'Dép. ' + fmt(b.totalDep);
+  document.getElementById('eq-dep-lbl').textContent = fmt(b.totalDep);
+  document.getElementById('eq-epg-lbl').textContent = fmt(b.totalEpg);
+  document.getElementById('eq-sur-lbl').textContent = fmtd(b.surplus);
+
+  // Personnes
+  const eNet = b.eNet, mNet = b.mNet;
+  document.getElementById('e-net').textContent = fmt(eNet);
+  document.getElementById('m-net').textContent = fmt(mNet);
+  document.getElementById('e-dep-c').textContent = fmt(state.eDepC);
+  document.getElementById('m-dep-c').textContent = fmt(state.mDepC);
+  document.getElementById('e-dep-p').textContent = fmt(state.eDepP);
+  document.getElementById('m-dep-p').textContent = fmt(state.mDepP);
+  document.getElementById('e-dep-t').textContent = fmt(state.eDepC + state.eDepP);
+  document.getElementById('m-dep-t').textContent = fmt(state.mDepC + state.mDepP);
+  document.getElementById('e-sur').textContent = fmtd(b.eSurplus);
+  document.getElementById('m-sur').textContent = fmtd(b.mSurplus);
+  document.getElementById('e-sur').className = 'val ' + (b.eSurplus>=0?'cs':'cd');
+  document.getElementById('m-sur').className = 'val ' + (b.mSurplus>=0?'cs':'cd');
+  document.getElementById('e-txepg').textContent = '~' + fmtPct(state.eEpg / eNet);
+  document.getElementById('m-txepg').textContent = '~' + fmtPct(state.mEpg / mNet);
+  document.getElementById('e-bar-lbl').textContent = fmt(eNet) + ' revenu';
+  document.getElementById('m-bar-lbl').textContent = fmt(mNet) + ' revenu';
+
+  // Barres perso avec étiquettes
+  function buildBar(who, net, dep, epg, sur, color) {
+    const total = net;
+    const pDep = (dep/total*100).toFixed(1);
+    const pEpg = (epg/total*100).toFixed(1);
+    const pSur = (Math.max(sur,0)/total*100).toFixed(1);
+    const surColor = who==='e' ? 'rgba(110,198,245,.7)' : 'rgba(167,139,250,.7)';
+
+    // Étiquettes (segment = flex, étiquette = flex aussi)
+    document.getElementById(who+'-bar-labels').innerHTML =
+      `<div style="flex:${dep};text-align:center;color:rgba(248,113,113,.9);white-space:nowrap;overflow:hidden;min-width:30px">${fmt(dep)}<br><span style="opacity:.7">${pDep}%</span></div>` +
+      (epg > 0 ? `<div style="flex:${epg};text-align:center;color:${color};white-space:nowrap;overflow:hidden;min-width:20px">${fmt(epg)}<br><span style="opacity:.7">${pEpg}%</span></div>` : '') +
+      (sur > 0 ? `<div style="flex:${sur};text-align:center;color:var(--surplus);white-space:nowrap;overflow:hidden;min-width:20px">${fmt(sur)}<br><span style="opacity:.7">${pSur}%</span></div>` : '');
+
+    document.getElementById(who+'-bar').innerHTML =
+      `<div style="background:rgba(248,113,113,.55);flex:${dep}"></div>` +
+      (epg > 0 ? `<div style="background:${surColor};flex:${epg}"></div>` : '') +
+      (sur > 0 ? `<div style="background:rgba(52,211,153,.65);flex:${sur}"></div>` : '');
+
+    document.getElementById(who+'-bar-legend').innerHTML =
+      `<span>🔴 Dépenses ${fmt(dep)} (${pDep}%)</span>` +
+      (epg > 0 ? `<span style="color:${color}">⬛ Épargne ${fmt(epg)} (${pEpg}%)</span>` : '') +
+      (sur > 0 ? `<span style="color:var(--surplus)">🟢 Surplus ${fmt(sur)} (${pSur}%)</span>` : `<span style="color:var(--danger)">⚠️ Déficit ${fmt(Math.abs(sur))}</span>`);
+  }
+
+  const eDep = state.eDepC + state.eDepP;
+  const mDep = state.mDepC + state.mDepP;
+  buildBar('e', b.eNet + b.cafE, eDep, state.eEpg, b.eSurplus, 'var(--emilie)');
+  buildBar('m', b.mNet + b.cafM, mDep, state.mEpg, b.mSurplus, 'var(--mikael)');
+
+  // Barres dépenses panel
+  const commTot = state.eDepC + state.mDepC;
+  const persoTot = state.eDepP + state.mDepP;
+  const el_dct = document.getElementById('dep-comm-total');
+  if (el_dct) {
+    el_dct.textContent = fmt(commTot);
+    document.getElementById('dep-comm-e-lbl').textContent = 'Emilie · ' + fmt(state.eDepC);
+    document.getElementById('dep-comm-m-lbl').textContent = fmt(state.mDepC) + ' · Mikael';
+    document.getElementById('dep-comm-bar-e').style.flex = state.eDepC;
+    document.getElementById('dep-comm-bar-m').style.flex = state.mDepC;
+    document.getElementById('dep-perso-total').textContent = fmt(persoTot);
+    document.getElementById('dep-perso-sub').textContent = 'Emilie ' + fmt(state.eDepP) + ' · Mikael ' + fmt(state.mDepP);
+    document.getElementById('dep-perso-e-lbl').textContent = 'Emilie · ' + fmt(state.eDepP);
+    document.getElementById('dep-perso-m-lbl').textContent = fmt(state.mDepP) + ' · Mikael';
+    document.getElementById('dep-perso-bar-e').style.flex = state.eDepP;
+    document.getElementById('dep-perso-bar-m').style.flex = state.mDepP;
+  }
+
+  // Badge mode
+  const isModified = JSON.stringify(state) !== JSON.stringify(BASE);
+  document.getElementById('mode-badge').textContent = isModified ? '● Modifié' : 'Base';
+  document.getElementById('mode-badge').style.color = isModified ? 'var(--warning)' : 'var(--muted)';
+  document.getElementById('mode-badge').style.borderColor = isModified ? 'rgba(245,158,11,.4)' : 'var(--border)';
+
+  // Sync panel épargne si ouvert
+  if (document.getElementById('epg-dispo')) syncEpargne();
+}
+
+// ══════════════════════════════════════════
+// DÉPENSES — TABLE ÉDITABLE
+// ══════════════════════════════════════════
+let communesData = communes.map(c => ({...c}));
+let persoEData = persoE.map(p => ({...p}));
+let persoMData = persoM.map(p => ({...p}));
+
+function renderCommunesTable() {
+  const tb = document.getElementById('communes-tbl');
+  tb.innerHTML = '';
+  communesData.forEach((d,i) => {
+    const origTotal = communes[i].total, origE = communes[i].e, origM = communes[i].m;
+    tb.innerHTML += `<tr>
+      <td>${d.name}</td>
+      <td class="amt"><input type="number" step="0.01" value="${d.total.toFixed(2)}" class="${d.total!==origTotal?'changed':''}" oninput="updateCommune(${i},'total',this.value,this)" /></td>
+      <td class="amt ce"><input type="number" step="0.01" value="${d.e.toFixed(2)}" class="${d.e!==origE?'changed':''}" oninput="updateCommune(${i},'e',this.value,this)" /></td>
+      <td class="amt cm"><input type="number" step="0.01" value="${d.m.toFixed(2)}" class="${d.m!==origM?'changed':''}" oninput="updateCommune(${i},'m',this.value,this)" /></td>
+    </tr>`;
+  });
+  refreshCommunesTotRow();
+}
+function refreshCommunesTotRow() {
+  const existing = document.querySelector('#communes-tbl tr.sub');
+  if (existing) existing.remove();
+  const totE = communesData.reduce((s,d)=>s+d.e,0);
+  const totM = communesData.reduce((s,d)=>s+d.m,0);
+  const tb = document.getElementById('communes-tbl');
+  const row = tb.insertRow();
+  row.className = 'sub';
+  row.innerHTML = `<td>TOTAL</td><td class="amt">${(totE+totM).toFixed(0)} €</td><td class="amt ce">${totE.toFixed(0)} €</td><td class="amt cm">${totM.toFixed(0)} €</td>`;
+}
+function updateCommune(i, field, val, inputEl) {
+  const parsed = parseFloat(val)||0;
+  communesData[i][field] = parsed;
+  inputEl.classList.toggle('changed', parsed !== communes[i][field]);
+  state.eDepC = communesData.reduce((s,d)=>s+d.e,0);
+  state.mDepC = communesData.reduce((s,d)=>s+d.m,0);
+  refreshCommunesTotRow();
+  updateAll(); renderDepBars();
+}
+function renderPersoTable(data, origData, tbId, cls) {
+  const tb = document.getElementById(tbId);
+  tb.innerHTML = '';
+  data.forEach((d,i) => {
+    const orig = origData[i].v;
+    tb.innerHTML += `<tr>
+      <td>${d.name}</td>
+      <td class="amt ${cls}"><input type="number" step="0.01" value="${d.v.toFixed(2)}" class="${d.v!==orig?'changed':''}" oninput="updatePerso('${tbId}',${i},this.value,this)" /></td>
+    </tr>`;
+  });
+  refreshPersoTotRow(tbId, data);
+}
+function refreshPersoTotRow(tbId, data) {
+  const existing = document.querySelector('#'+tbId+' tr.sub');
+  if (existing) existing.remove();
+  const tot = data.reduce((s,d)=>s+d.v,0);
+  const tb = document.getElementById(tbId);
+  const row = tb.insertRow();
+  row.className = 'sub';
+  row.innerHTML = `<td>Total</td><td class="amt">${tot.toFixed(0)} €</td>`;
+}
+function updatePerso(tbId, i, val, inputEl) {
+  const parsed = parseFloat(val)||0;
+  if (tbId === 'perso-e-tbl') {
+    persoEData[i].v = parsed;
+    inputEl.classList.toggle('changed', parsed !== persoE[i].v);
+    state.eDepP = persoEData.reduce((s,d)=>s+d.v,0);
+    refreshPersoTotRow('perso-e-tbl', persoEData);
+  } else {
+    persoMData[i].v = parsed;
+    inputEl.classList.toggle('changed', parsed !== persoM[i].v);
+    state.mDepP = persoMData.reduce((s,d)=>s+d.v,0);
+    refreshPersoTotRow('perso-m-tbl', persoMData);
+  }
+  updateAll();
+}
+function resetCommunes() { communesData = communes.map(c=>({...c})); state.eDepC = BASE.eDepC; state.mDepC = BASE.mDepC; renderCommunesTable(); updateAll(); renderDepBars(); }
+function resetPerso(who) {
+  if (who==='e') { persoEData = persoE.map(p=>({...p})); state.eDepP = BASE.eDepP; renderPersoTable(persoEData, persoE, 'perso-e-tbl','ce'); }
+  else { persoMData = persoM.map(p=>({...p})); state.mDepP = BASE.mDepP; renderPersoTable(persoMData, persoM, 'perso-m-tbl','cm'); }
+  updateAll();
+}
+
+function renderDepBars() {
+  const top = [...communesData].sort((a,b)=>b.total-a.total).slice(0,8);
+  const max = top[0].total;
+  const el = document.getElementById('dep-bars');
+  el.innerHTML = '';
+  top.forEach(d => {
+    el.innerHTML += `<div class="bar-row">
+      <div class="bar-name">${d.name}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${(d.total/max*100).toFixed(1)}%;background:linear-gradient(90deg,var(--emilie),var(--mikael))"></div></div>
+      <div class="bar-val">${d.total.toFixed(0)} €</div>
+    </div>`;
+  });
+}
+
+// ══════════════════════════════════════════
+// ÉPARGNE — OUTIL INTERACTIF
+// ══════════════════════════════════════════
+let pochesE = [
+  { name:'Confluence', montant:40, color:'var(--emilie)' },
+  { name:'Livret A', montant:160, color:'var(--emilie)', opacity:'.6' },
+];
+let pochesM = [
+  { name:'Livret A', montant:365, color:'var(--mikael)' },
+  { name:'Bitstack BTC', montant:35, color:'var(--mikael)', opacity:'.6' },
+  { name:'PEL Charly', montant:50, color:'var(--commun)' },
+];
+
+function getSurplusBase() {
+  return computeBudget(state).surplus;
+}
+function getImprevus() {
+  return parseFloat(document.getElementById('epg-imprevus').value)||0;
+}
+function getDispo() {
+  return Math.max(0, getSurplusBase() - getImprevus());
+}
+function getTotalEpgE() { return pochesE.reduce((s,p)=>s+p.montant,0); }
+function getTotalEpgM() { return pochesM.reduce((s,p)=>s+p.montant,0); }
+function getTotalEpg() { return getTotalEpgE() + getTotalEpgM(); }
+
+function renderPoches(who) {
+  const poches = who==='e' ? pochesE : pochesM;
+  const color = who==='e' ? 'var(--emilie)' : 'var(--mikael)';
+  const el = document.getElementById('poches-'+who);
+  el.innerHTML = '';
+  poches.forEach((p,i) => {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:grid;grid-template-columns:1fr 90px 24px;gap:8px;align-items:center';
+    row.innerHTML = `
+      <input type="text" value="${p.name}" placeholder="Nom de la poche"
+        style="background:var(--input-bg);border:1px solid var(--input-border);border-radius:5px;color:var(--text);font-size:12px;padding:5px 8px;width:100%"
+        oninput="(who=>'${who}',pochesUpdate('${who}',${i},'name',this.value))()" />
+      <div style="display:flex;align-items:center;gap:4px">
+        <input type="number" value="${p.montant}" min="0" step="5"
+          style="background:var(--input-bg);border:1px solid var(--input-border);border-radius:5px;color:${color};font-family:var(--mono);font-size:13px;font-weight:500;padding:5px 6px;width:100%;text-align:right"
+          oninput="pochesUpdate('${who}',${i},'montant',this.value)" />
+        <span style="color:var(--muted);font-size:12px">€</span>
+      </div>
+      <button onclick="deletePoche('${who}',${i})"
+        style="background:none;border:none;color:var(--muted2);font-size:14px;cursor:pointer;padding:2px;line-height:1"
+        onmouseover="this.style.color='var(--danger)'" onmouseout="this.style.color='var(--muted2)'">✕</button>`;
+    el.appendChild(row);
+  });
+  syncEpargne();
+}
+function pochesUpdate(who, i, field, val) {
+  const arr = who==='e' ? pochesE : pochesM;
+  arr[i][field] = field==='montant' ? (parseFloat(val)||0) : val;
+  syncEpargne();
+}
+function deletePoche(who, i) {
+  if (who==='e') pochesE.splice(i,1); else pochesM.splice(i,1);
+  renderPoches(who);
+}
+function addPoche(who) {
+  const arr = who==='e' ? pochesE : pochesM;
+  arr.push({ name:'Nouvelle poche', montant:0 });
+  renderPoches(who);
+  // Focus le nom du dernier
+  setTimeout(()=>{
+    const inputs = document.querySelectorAll('#poches-'+who+' input[type=text]');
+    if (inputs.length) { inputs[inputs.length-1].select(); }
+  }, 50);
+}
+
+function syncEpargne() {
+  const surplus = getSurplusBase();
+  const imprevus = getImprevus();
+  const dispo = surplus - imprevus;
+  const epgE = getTotalEpgE();
+  const epgM = getTotalEpgM();
+  const epgTot = epgE + epgM;
+  const reste = dispo - epgTot;
+
+  // Surplus base (réactif au budget)
+  document.getElementById('epg-surplus-base').textContent = fmt(surplus);
+  document.getElementById('epg-surplus-base').style.color = surplus>=0 ? 'var(--surplus)' : 'var(--danger)';
+
+  // Dispo
+  const dispoEl = document.getElementById('epg-dispo');
+  dispoEl.textContent = dispo >= 0 ? fmt(dispo) : '−'+fmt(Math.abs(dispo));
+  dispoEl.style.color = dispo < 0 ? 'var(--danger)' : dispo < epgTot ? 'var(--warning)' : 'var(--surplus)';
+  document.getElementById('epg-dispo-sub').textContent = imprevus > 0 ? `${fmt(surplus)} − ${fmt(imprevus)} imprévus` : 'Surplus du mois';
+
+  // Totaux poches
+  document.getElementById('epg-e-total-lbl').textContent = fmt(epgE);
+  document.getElementById('epg-m-total-lbl').textContent = fmt(epgM);
+
+  // Reste label
+  const resteEl = document.getElementById('epg-reste-lbl');
+  if (reste < 0) {
+    resteEl.innerHTML = `<strong style="color:var(--danger)">Dépassement : ${fmt(Math.abs(reste))}</strong>`;
+  } else if (reste === 0) {
+    resteEl.innerHTML = `<strong style="color:var(--surplus)">Budget épargne équilibré ✓</strong>`;
+  } else {
+    resteEl.innerHTML = `Reste non affecté : <strong style="color:var(--surplus)">${fmt(reste)}</strong>`;
+  }
+
+  // Jauge
+  const jaugeEl = document.getElementById('epg-jauge');
+  const base = Math.max(dispo, epgTot, 1);
+  if (dispo <= 0) {
+    jaugeEl.innerHTML = `<div style="flex:1;background:var(--danger);opacity:.7"></div>`;
+  } else {
+    const pE = Math.min(epgE/base, 1);
+    const pM = Math.min(epgM/base, 1);
+    const pReste = Math.max(0, reste/base);
+    const pOver = reste < 0 ? Math.abs(reste)/base : 0;
+    jaugeEl.innerHTML =
+      `<div style="flex:${epgE};background:var(--emilie);opacity:.8;min-width:${epgE>0?2:0}px"></div>` +
+      `<div style="flex:${epgM};background:var(--mikael);opacity:.8;min-width:${epgM>0?2:0}px"></div>` +
+      (reste > 0 ? `<div style="flex:${reste};background:var(--surplus);opacity:.35"></div>` : '') +
+      (reste < 0 ? `<div style="flex:${Math.abs(reste)};background:var(--danger);opacity:.7"></div>` : '');
+  }
+
+  // Projection annuelle
+  const note = reste < 0 ? ' — ⚠️ dépasse le disponible' : reste > 0 ? ` — ${fmt(reste)} non affecté/mois` : ' — budget parfaitement alloué';
+  document.getElementById('epg-proj-note').textContent = note;
+  document.getElementById('epg-proj-grid').innerHTML = `
+    <div><div class="clabel">Épargne Emilie / an</div><div style="font-family:var(--mono);font-size:18px;color:var(--emilie)">${fmt(epgE*12)}</div></div>
+    <div><div class="clabel">Épargne Mikael / an</div><div style="font-family:var(--mono);font-size:18px;color:var(--mikael)">${fmt(epgM*12)}</div></div>
+    <div><div class="clabel">Total couple / an</div><div style="font-family:var(--mono);font-size:18px;color:var(--surplus)">${fmt(epgTot*12)}</div></div>
+    <div><div class="clabel">Projection 5 ans</div><div style="font-family:var(--mono);font-size:18px;color:var(--commun)">${fmt(epgTot*12*5)}</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:3px">Sans intérêts composés</div></div>`;
+}
+
+function applyScenEpg(key) {
+  const surplus = getSurplusBase();
+  const dispo = getDispo();
+  if (key==='base') {
+    pochesE = [{ name:'Confluence', montant:40 },{ name:'Livret A', montant:160 }];
+    pochesM = [{ name:'Livret A', montant:365 },{ name:'Bitstack BTC', montant:35 },{ name:'PEL Charly', montant:50 }];
+  } else if (key==='minimal') {
+    pochesE = [{ name:'Livret A', montant:Math.round(100) }];
+    pochesM = [{ name:'Livret A', montant:Math.round(200) }];
+  } else if (key==='max') {
+    // Tout le dispo réparti 35/65
+    const eP = Math.round(dispo * 0.35);
+    const mP = Math.round(dispo * 0.65);
+    pochesE = [{ name:'Livret A', montant:eP }];
+    pochesM = [{ name:'Livret A', montant:mP }];
+  } else if (key==='travaux') {
+    pochesE = [{ name:'Confluence', montant:40 },{ name:'Livret A', montant:289 }];
+    pochesM = [{ name:'Livret A', montant:500 },{ name:'Bitstack BTC', montant:35 },{ name:'PEL Charly', montant:50 }];
+  } else if (key==='egal') {
+    const half = Math.round(dispo / 2);
+    pochesE = [{ name:'Livret A', montant:half }];
+    pochesM = [{ name:'Livret A', montant:half }];
+  }
+  renderPoches('e');
+  renderPoches('m');
+}
+
+// ══════════════════════════════════════════
+// SIMULATION — SLIDERS
+// ══════════════════════════════════════════
+const simBase = { eSal:2200, eEpg:200, eDepP:552, mSal:2895, mSal2:1234, mEpg:400, mDepP:1477 };
+const presets = {
+  now:      { eSal:2200, eEpg:200, eDepP:552, mSal:2895, mSal2:1234, mEpg:400, mDepP:1477 },
+  changes:  { eSal:2100, eEpg:200, eDepP:552, mSal:3095, mSal2:1234, mEpg:400, mDepP:1477 },
+  travaux:  { eSal:2100, eEpg:329, eDepP:552, mSal:3095, mSal2:1234, mEpg:530, mDepP:1477 },
+  optimiste:{ eSal:2100, eEpg:330, eDepP:552, mSal:3095, mSal2:1234, mEpg:620, mDepP:1400 },
+};
+function applyPreset(key) {
+  const p = presets[key];
+  for (const [k,v] of Object.entries(p)) {
+    const el = document.getElementById('sl-'+k.replace(/([A-Z])/g,'-$1').toLowerCase().replace('--','-'));
+    if (el) { el.value = v; }
+  }
+  syncSim();
+}
+function resetSim() { applyPreset('now'); }
+
+function syncSim() {
+  const ids =  ['sl-e-sal','sl-e-epg','sl-e-dep','sl-m-sal','sl-m-sal2','sl-m-epg','sl-m-dep'];
+  const keys = ['eSal',    'eEpg',    'eDepP',   'mSal',    'mSal2',    'mEpg',    'mDepP'];
+  const labelIds = ids.map(id => id+'-v');
+  const simState = {};
+  ids.forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const v = parseFloat(el.value)||0;
+    simState[keys[i]] = v;
+    const lbl = document.getElementById(labelIds[i]);
+    if (lbl) lbl.textContent = v.toLocaleString('fr-FR') + ' €';
+  });
+  const eNet = simState.eSal;
+  const mNet = (simState.mSal||0) + (simState.mSal2||0);
+  const totalRev = eNet + mNet + state.caf;
+  const totalDep = state.eDepC + state.mDepC + (simState.eDepP||0) + (simState.mDepP||0);
+  const totalEpg = (simState.eEpg||0) + (simState.mEpg||0);
+  const surplus = totalRev - totalDep - totalEpg;
+
+  const baseB = computeBudget(BASE);
+  const dRev = totalRev - baseB.totalRev;
+  const dEpg = totalEpg - baseB.totalEpg;
+  const dDep = totalDep - baseB.totalDep;
+  const dSur = surplus - baseB.surplus;
+
+  function pill(d) {
+    if (Math.abs(d)<0.5) return `<span class="delta-pill neu">±0</span>`;
+    return `<span class="delta-pill ${d>0?'pos':'neg'}">${d>0?'+':''}${d.toFixed(0)} €</span>`;
+  }
+  const rows = [
+    ['Revenus totaux', totalRev, dRev],
+    ['Dépenses totales', totalDep, dDep],
+    ['Épargne mensuelle', totalEpg, dEpg],
+    ['Surplus libre', surplus, dSur],
+    ['Taux épargne Emilie', null, null, fmtPct(simState.eEpg/eNet)],
+    ['Taux épargne Mikael', null, null, fmtPct(simState.mEpg/mNet)],
+  ];
+  document.getElementById('sim-results').innerHTML = rows.map(r => r[3]
+    ? `<div class="sim-row"><span class="slbl">${r[0]}</span><span class="sval">${r[3]}</span></div>`
+    : `<div class="sim-row"><span class="slbl">${r[0]}</span><span class="sval">${fmt(r[1])} ${pill(r[2])}</span></div>`
+  ).join('');
+  document.getElementById('sim-annual').innerHTML = `
+    <div style="flex:1;min-width:120px"><div class="clabel">Épargne / an</div><div style="font-family:var(--mono);font-size:18px;color:var(--surplus)">${fmt(totalEpg*12)}</div></div>
+    <div style="flex:1;min-width:120px"><div class="clabel">Surplus / an</div><div style="font-family:var(--mono);font-size:18px;color:${surplus>=0?'var(--commun)':'var(--danger)'}">${fmtd(surplus*12)}</div></div>
+    <div style="flex:1;min-width:120px"><div class="clabel">Total épargné 5 ans</div><div style="font-family:var(--mono);font-size:18px;color:var(--emilie)">${fmt(totalEpg*12*5)}</div></div>`;
+
+  const note = surplus < 0
+    ? `⚠️ <strong>Attention :</strong> le budget est déficitaire de <strong style="color:var(--danger)">${fmt(Math.abs(surplus))}/mois</strong> dans ce scénario.`
+    : surplus < 300
+    ? `<strong>Surplus serré</strong> à ${fmt(surplus)}/mois — peu de marge de manœuvre en cas d'imprévu.`
+    : `<span class="ok">✓ Budget équilibré</span> avec un surplus de <strong>${fmt(surplus)}/mois</strong> · Épargne annuelle projetée : <strong>${fmt(totalEpg*12)}</strong>.`;
+  document.getElementById('sim-note').innerHTML = note;
+}
+
+// ══════════════════════════════════════════
+// APPLY SIM → BASE (sans rechargement)
+// ══════════════════════════════════════════
+function applySimToBase() {
+  const map =   { eSal:'e-sal', eEpg:'e-epg', mSal:'m-sal', mSal2:'m-sal2', mEpg:'m-epg' };
+  const slMap = { eSal:'sl-e-sal', eEpg:'sl-e-epg', eDepP:'sl-e-dep', mSal:'sl-m-sal', mSal2:'sl-m-sal2', mEpg:'sl-m-epg', mDepP:'sl-m-dep' };
+  for (const [k, slId] of Object.entries(slMap)) {
+    const el = document.getElementById(slId);
+    if (!el) continue;
+    const v = parseFloat(el.value)||0;
+    state[k] = v;
+    if (map[k]) { const inp = document.getElementById(map[k]); if (inp) inp.value = v; }
+  }
+  updateAll();
+  showPanel('vue', document.querySelector('.tab'));
+  alert('✓ Simulation appliquée au budget.');
+}
+
+// ══════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════
+function showPanel(id, tabEl) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  if (tabEl) tabEl.classList.add('active');
+}
+
+// ══════════════════════════════════════════
+// THEME TOGGLE
+// ══════════════════════════════════════════
+function toggleTheme() {
+  const root = document.documentElement;
+  const isLight = root.classList.toggle('light');
+  document.getElementById('theme-icon').textContent = isLight ? '🌙' : '☀️';
+  document.getElementById('theme-label').textContent = isLight ? 'Sombre' : 'Clair';
+  localStorage.setItem('bf-theme', isLight ? 'light' : 'dark');
+}
+// Restore saved preference
+(function() {
+  const saved = localStorage.getItem('bf-theme');
+  if (saved === 'light') {
+    document.documentElement.classList.add('light');
+    // icons updated after DOM ready
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('theme-icon').textContent = '🌙';
+      document.getElementById('theme-label').textContent = 'Sombre';
+    });
+  }
+})();
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+renderCommunesTable();
+renderPersoTable(persoEData, persoE, 'perso-e-tbl', 'ce');
+renderPersoTable(persoMData, persoM, 'perso-m-tbl', 'cm');
+renderDepBars();
+renderPoches('e');
+renderPoches('m');
+updateCAF(BASE.caf); // init slider + affichage
+updateAll();
+syncSim();
+// Restore theme icon if needed
+if (document.documentElement.classList.contains('light')) {
+  document.getElementById('theme-icon').textContent = '🌙';
+  document.getElementById('theme-label').textContent = 'Sombre';
+}
+</script>
+</body>
+</html>
