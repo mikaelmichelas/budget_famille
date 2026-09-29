@@ -263,7 +263,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
     <div class="card">
       <div class="clabel">Surplus libre</div>
       <div class="cvalue cs" id="kpi-sur">+300 €</div>
-      <div style="font-size:10px;color:var(--muted);margin-top:2px">Revenus perso − dépenses − épargne</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:2px">Revenus perso − dépenses (épargne libre)</div>
       <div style="margin-top:10px;display:flex;flex-direction:column;gap:5px">
         <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px">
           <span style="display:flex;align-items:center;gap:5px"><span class="dot e"></span>Emilie</span>
@@ -692,12 +692,11 @@ function computeBudget(o) {
   const totalRev = eNet + mNet + o.caf;
   const totalDep = o.eDepC + o.mDepC + o.eDepP + o.mDepP;
   const totalEpg = o.eEpg + o.mEpg;
-  // Surplus libre = revenus perso uniquement, CAF exclue
-  const surplusPerso = eNet + mNet - totalDep - totalEpg;
-  const surplus = surplusPerso; // affiché dans le header et la carte
-  // Surplus individuel (sans CAF)
-  const eSurplus = eNet - o.eDepC - o.eDepP - o.eEpg;
-  const mSurplus = mNet - o.mDepC - o.mDepP - o.mEpg;
+  // Surplus = revenus perso − dépenses uniquement (épargne non déduite)
+  // Chacun voit ce qu'il lui reste et décide combien épargner
+  const surplus = eNet + mNet - (o.eDepC + o.mDepC + o.eDepP + o.mDepP);
+  const eSurplus = eNet - o.eDepC - o.eDepP;
+  const mSurplus = mNet - o.mDepC - o.mDepP;
   // CAF couvre les dépenses communes à parts égales
   const cafDemi = o.caf / 2;
   // Ce que chacun doit virer sur le compte joint = sa part dépenses communes − CAF/2
@@ -988,8 +987,7 @@ function renderDepBars() {
 // ══════════════════════════════════════════
 let pochesE = [
   { name:'Confluence', montant:40, fixe:true },
-  { name:'Livret A (fixe)', montant:50, fixe:true },
-  { name:'Livret A (variable)', montant:110, fixe:false },
+  { name:'Livret A', montant:50, fixe:true },
 ];
 let pochesM = [
   { name:'Livret A', montant:365, fixe:false },
@@ -997,13 +995,11 @@ let pochesM = [
   { name:'PEL Charly', montant:50, fixe:false },
 ];
 
-const EPG_FIXE_E = 90; // Confluence 40 + Livret A 50 — intouchable
+const EPG_FIXE_E = 90;
 
 function getSurplusBase() {
-  // Enveloppe réelle = surplus perso + épargne programmée
-  // (l'épargne est une dépense choisie, on peut la moduler)
-  const b = computeBudget(state);
-  return b.surplus + state.eEpg + state.mEpg;
+  // Même logique que Vue d'ensemble : revenus − dépenses, épargne non déduite
+  return computeBudget(state).surplus;
 }
 function getImprevus() {
   return parseFloat(document.getElementById('epg-imprevus').value)||0;
@@ -1069,11 +1065,9 @@ function addPoche(who) {
 }
 
 function syncEpargne() {
-  const surplusPerso = computeBudget(state).surplus;
-  const epgProgrammee = state.eEpg + state.mEpg;
-  const enveloppe = surplusPerso + epgProgrammee; // vraie enveloppe modulable
+  const surplus = getSurplusBase(); // revenus − dépenses
   const imprevus = getImprevus();
-  const dispo = enveloppe - imprevus;
+  const dispo = surplus - imprevus;
   const epgE = getTotalEpgE();
   const epgM = getTotalEpgM();
   const epgTot = epgE + epgM;
@@ -1082,10 +1076,10 @@ function syncEpargne() {
 
   // Surplus base affiché
   const surplusEl = document.getElementById('epg-surplus-base');
-  surplusEl.textContent = fmt(enveloppe);
-  surplusEl.style.color = enveloppe >= 0 ? 'var(--surplus)' : 'var(--danger)';
+  surplusEl.textContent = fmt(surplus);
+  surplusEl.style.color = surplus >= 0 ? 'var(--surplus)' : 'var(--danger)';
 
-  // Sous-détail surplus budgété
+  // Sous-détail — on retire le sous-texte "épargne programmée"
   let subEl = document.getElementById('epg-surplus-detail');
   if (!subEl) {
     subEl = document.createElement('div');
@@ -1093,7 +1087,7 @@ function syncEpargne() {
     subEl.style.cssText = 'font-size:10px;color:var(--muted2);margin-top:3px';
     surplusEl.after(subEl);
   }
-  subEl.textContent = `Surplus ${fmt(surplusPerso)} + épargne prog. ${fmt(epgProgrammee)}`;
+  subEl.textContent = 'Revenus perso − dépenses · épargne non déduite';
 
   // Dispo
   const dispoEl = document.getElementById('epg-dispo');
@@ -1157,8 +1151,7 @@ function applyScenEpg(key) {
   if (key==='base') {
     pochesE = [
       { name:'Confluence', montant:40, fixe:true },
-      { name:'Livret A (fixe)', montant:50, fixe:true },
-      { name:'Livret A (variable)', montant:110, fixe:false },
+      { name:'Livret A', montant:50, fixe:true },
     ];
     pochesM = [
       { name:'Livret A', montant:365, fixe:false },
@@ -1168,22 +1161,20 @@ function applyScenEpg(key) {
   } else if (key==='minimal') {
     pochesE = [
       { name:'Confluence', montant:40, fixe:true },
-      { name:'Livret A (fixe)', montant:50, fixe:true },
+      { name:'Livret A', montant:50, fixe:true },
     ];
     pochesM = [{ name:'Livret A', montant:100, fixe:false }];
   } else if (key==='max') {
-    const varDispo = Math.max(0, dispo - 90); // 90€ fixes Emilie réservés
+    const varDispo = Math.max(0, dispo - 90);
     const eP = Math.round(varDispo * 0.35);
     const mP = Math.round(varDispo * 0.65);
     pochesE = [
       { name:'Confluence', montant:40, fixe:true },
-      { name:'Livret A (fixe)', montant:50, fixe:true },
+      { name:'Livret A', montant:50, fixe:true },
       { name:'Livret A (variable)', montant:eP, fixe:false },
     ];
     pochesM = [{ name:'Livret A', montant:mP, fixe:false }];
   } else if (key==='travaux') {
-    // Fin prêt travaux : retire 259€ des dépenses communes ET les réaffecte en épargne
-    // Prêt Travaux = 259€ (129.5€ chacun dans les communes)
     const idx = communesData.findIndex(d => d.name.toLowerCase().includes('travaux'));
     if (idx >= 0) {
       communesData[idx].total = 0;
@@ -1195,11 +1186,10 @@ function applyScenEpg(key) {
       renderDepBars();
       updateAll();
     }
-    // Réaffecter les 259€ libérés en épargne (130 Emilie / 129 Mikael)
     pochesE = [
       { name:'Confluence', montant:40, fixe:true },
-      { name:'Livret A (fixe)', montant:50, fixe:true },
-      { name:'Livret A (variable)', montant:240, fixe:false },
+      { name:'Livret A', montant:50, fixe:true },
+      { name:'Livret A (variable)', montant:130, fixe:false },
     ];
     pochesM = [
       { name:'Livret A', montant:494, fixe:false },
