@@ -1205,7 +1205,6 @@ function applyScenEpg(key) {
     pochesE = [
       { name:'Confluence', montant:40, fixe:true },
       { name:'Livret A', montant:50, fixe:true },
-      { name:'Livret A (variable)', montant:eP, fixe:false },
     ];
     pochesM = [{ name:'Livret A', montant:mP, fixe:false }];
   } else if (key==='travaux') {
@@ -1223,12 +1222,10 @@ function applyScenEpg(key) {
     pochesE = [
       { name:'Confluence', montant:40, fixe:true },
       { name:'Livret A', montant:50, fixe:true },
-      { name:'Livret A (variable)', montant:130, fixe:false },
-    ];
+      ];
     pochesM = [
-      { name:'Livret A', montant:494, fixe:false },
+      { name:'Livret A', montant:400, fixe:false },
       { name:'Bitstack BTC', montant:35, fixe:false },
-      { name:'PEL Charly', montant:50, fixe:false },
     ];
   }
   renderPoches('e');
