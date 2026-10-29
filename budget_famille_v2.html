@@ -694,11 +694,11 @@ function computeBudget(o) {
   const mVirement = o.mDepC - cafDemi;
   // Surplus individuel = salaire net − dépenses perso − virement net − épargne
   // (le virement est réduit de CAF/2, donc eSurplus contient implicitement CAF/2)
-  const eSurplus = eNet - o.eDepP - eVirement - epgE;
-  const mSurplus = mNet - o.mDepP - mVirement - epgM;
-  // La CAF gonfle eSurplus+mSurplus de exactement o.caf (105+105)
-  // mais elle couvre des dépenses réelles → on la soustrait pour avoir le vrai surplus libre
-  const surplus = eSurplus + mSurplus - o.caf;
+  // Surplus individuel : on déduit aussi cafDemi car le virement réduit ne couvre pas la CAF
+  // c'est le compte joint qui la reçoit, pas la personne → pas du surplus perso
+  const eSurplus = eNet - o.eDepP - eVirement - epgE - cafDemi;
+  const mSurplus = mNet - o.mDepP - mVirement - epgM - cafDemi;
+  const surplus = eSurplus + mSurplus;
   const cafE = cafDemi;
   const cafM = cafDemi;
   return { eNet, mNet, totalRev, totalDep, totalEpg, surplus, eSurplus, mSurplus, cafE, cafM, eVirement, mVirement, cafDemi };
@@ -1286,9 +1286,9 @@ function syncSim() {
   const cafDemiSv = sv.caf / 2;
   const epgE = sv.eEpg;
   const epgM = sv.mEpg;
-  const eSurplus = eNet - sv.eDepP - (sv.eDepC - cafDemiSv) - epgE;
-  const mSurplus = mNet - sv.mDepP - (sv.mDepC - cafDemiSv) - epgM;
-  const surplus = eSurplus + mSurplus - sv.caf;
+  const eSurplus = eNet - sv.eDepP - (sv.eDepC - cafDemiSv) - epgE - cafDemiSv;
+  const mSurplus = mNet - sv.mDepP - (sv.mDepC - cafDemiSv) - epgM - cafDemiSv;
+  const surplus = eSurplus + mSurplus;
   const totalEpg = epgE + epgM;
 
   // Situation courante pour comparaison
