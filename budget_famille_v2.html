@@ -161,6 +161,20 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
 /* RESET BTN */
 .btn-reset { background: none; border: 1px solid var(--border); border-radius: 5px; color: var(--muted); font-family: var(--sans); font-size: 11px; padding: 4px 10px; cursor: pointer; transition: all .15s; }
 .btn-reset:hover { border-color: var(--muted2); color: var(--text); }
+/* CATÉGORIES DÉPENSES */
+.cat-select { background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 4px; color: var(--text); font-family: var(--sans); font-size: 11px; padding: 2px 4px; cursor: pointer; }
+.cat-select:focus { outline: none; border-color: var(--emilie); }
+.cat-badge { font-size: 10px; padding: 1px 7px; border-radius: 10px; white-space: nowrap; font-weight: 500; }
+.cat-pret        { background: rgba(167,139,250,.18); color: var(--mikael); }
+.cat-incompressible { background: rgba(110,198,245,.14); color: var(--emilie); }
+.cat-loisirs     { background: rgba(245,158,11,.15); color: var(--warning); }
+.cat-superflu    { background: rgba(248,113,113,.14); color: var(--danger); }
+/* BLOC CATÉGORIES VUE D'ENSEMBLE */
+.cat-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
+.cat-chip { flex: 1; min-width: 110px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; }
+.cat-chip .chip-label { font-size: 10px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: 4px; }
+.cat-chip .chip-val { font-family: var(--mono); font-size: 16px; font-weight: 600; }
+.cat-chip .chip-pct { font-size: 10px; color: var(--muted); margin-top: 2px; }
 .btn-apply { background: rgba(110,198,245,0.12); border: 1px solid rgba(110,198,245,0.3); border-radius: 5px; color: var(--emilie); font-family: var(--sans); font-size: 11px; padding: 4px 10px; cursor: pointer; transition: all .15s; }
 .btn-apply:hover { background: rgba(110,198,245,0.2); }
 .scen-btn { background: none; border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-family: var(--sans); font-size: 12px; padding: 8px 16px; cursor: pointer; transition: all .2s; }
@@ -280,6 +294,17 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
           <div class="csub">total mensuel</div>
         </div>
       </div>
+      <!-- Communes / Perso split -->
+      <div style="display:flex;gap:8px;margin-bottom:4px">
+        <div style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:6px 10px">
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:2px">Communes</div>
+          <div style="font-family:var(--mono);font-size:13px;font-weight:600;color:var(--text)" id="kpi-dep-comm">—</div>
+        </div>
+        <div style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:6px 10px">
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:2px">Perso</div>
+          <div style="font-family:var(--mono);font-size:13px;font-weight:600;color:var(--text)" id="kpi-dep-perso">—</div>
+        </div>
+      </div>
       <!-- Barres E/M -->
       <div style="display:flex;flex-direction:column;gap:7px">
         <div style="display:flex;align-items:center;gap:6px;font-size:12px">
@@ -293,6 +318,8 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
           <span class="cm" style="font-family:var(--mono);min-width:58px;text-align:right" id="kpi-dep-m-lbl">—</span>
         </div>
       </div>
+      <!-- CATÉGORIES -->
+      <div class="cat-chips" id="cat-chips"></div>
     </div>
 
     <!-- 3 mini-cards droite -->
@@ -463,12 +490,12 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
   </div>
   <div class="card mt12">
     <div class="sh">Dépenses communes — détail complet <button class="btn-reset" onclick="resetCommunes()">Réinitialiser</button></div>
-    <table class="dt"><thead><tr><th>Poste</th><th style="text-align:right">Total</th><th style="text-align:right">Emilie</th><th style="text-align:right">Mikael</th></tr></thead>
+    <table class="dt"><thead><tr><th>Poste</th><th>Type</th><th style="text-align:right">Total</th><th style="text-align:right">Emilie</th><th style="text-align:right">Mikael</th></tr></thead>
     <tbody id="communes-tbl"></tbody></table>
   </div>
   <div class="g2 mt12">
-    <div class="card"><div class="sh">Perso Emilie <button class="btn-reset" onclick="resetPerso('e')">Réinitialiser</button></div><table class="dt"><tbody id="perso-e-tbl"></tbody></table></div>
-    <div class="card"><div class="sh">Perso Mikael <button class="btn-reset" onclick="resetPerso('m')">Réinitialiser</button></div><table class="dt"><tbody id="perso-m-tbl"></tbody></table></div>
+    <div class="card"><div class="sh">Perso Emilie <button class="btn-reset" onclick="resetPerso('e')">Réinitialiser</button></div><table class="dt"><thead><tr><th>Poste</th><th>Type</th><th style="text-align:right">Montant</th></tr></thead><tbody id="perso-e-tbl"></tbody></table></div>
+    <div class="card"><div class="sh">Perso Mikael <button class="btn-reset" onclick="resetPerso('m')">Réinitialiser</button></div><table class="dt"><thead><tr><th>Poste</th><th>Type</th><th style="text-align:right">Montant</th></tr></thead><tbody id="perso-m-tbl"></tbody></table></div>
   </div>
 </div>
 
@@ -688,45 +715,57 @@ const BASE = {
   eDepC: 1306.835, mDepC: 2093.005,
 };
 
+// cat: "pret" | "incompressible" | "loisirs" | "superflu"
 const communes = [
-  { name:"Prêt immobilier", total:963, e:120.375, m:842.625 },
-  { name:"Prêt Travaux", total:259, e:129.5, m:129.5 },
-  { name:"Panneaux solaires", total:240, e:120, m:120 },
-  { name:"EDF mensualité", total:195, e:97.5, m:97.5 },
-  { name:"Courses alimentaires", total:250, e:125, m:125 },
-  { name:"Boulangerie/Boucherie", total:250, e:125, m:125 },
-  { name:"Taxe foncière/Impôt", total:193, e:96.5, m:96.5 },
-  { name:"Assur. Groupama hab.", total:110.76, e:55.38, m:55.38 },
-  { name:"Assur. Tesla", total:113.02, e:0, m:113.02 },
-  { name:"Mutuelle famille", total:110, e:55, m:55 },
-  { name:"Scolarité Charly→Robin", total:165, e:82.5, m:82.5 },
-  { name:"Restaurants", total:100, e:50, m:50 },
-  { name:"Assur. Peugeot 208", total:68.51, e:68.51, m:0 },
-  { name:"Pharmacie/Santé", total:60, e:30, m:30 },
-  { name:"Loisirs communs", total:60, e:30, m:30 },
-  { name:"Eau", total:40, e:20, m:20 },
-  { name:"Internet + téléphone Charly", total:37, e:18.5, m:18.5 },
-  { name:"Frais gestion BP", total:26.80, e:13.4, m:13.4 },
-  { name:"Assur. prêt Emilie", total:19.67, e:19.67, m:0 },
-  { name:"Assur. prêt Mikael", total:39.08, e:0, m:39.08 },
-  { name:"PEL Charly", total:50, e:25, m:25 },
-  { name:"Bricolage/Jardinerie", total:50, e:25, m:25 },
+  { name:"Prêt immobilier",           total:963,   e:120.375, m:842.625, cat:"pret" },
+  { name:"Prêt Travaux",              total:259,   e:129.5,   m:129.5,   cat:"pret" },
+  { name:"Panneaux solaires",         total:240,   e:120,     m:120,     cat:"pret" },
+  { name:"Assur. prêt Emilie",        total:19.67, e:19.67,   m:0,       cat:"pret" },
+  { name:"Assur. prêt Mikael",        total:39.08, e:0,       m:39.08,   cat:"pret" },
+  { name:"EDF mensualité",            total:195,   e:97.5,    m:97.5,    cat:"incompressible" },
+  { name:"Courses alimentaires",      total:250,   e:125,     m:125,     cat:"incompressible" },
+  { name:"Boulangerie/Boucherie",     total:250,   e:125,     m:125,     cat:"incompressible" },
+  { name:"Taxe foncière/Impôt",       total:193,   e:96.5,    m:96.5,    cat:"incompressible" },
+  { name:"Assur. Groupama hab.",      total:110.76,e:55.38,   m:55.38,   cat:"incompressible" },
+  { name:"Assur. Tesla",              total:113.02,e:0,       m:113.02,  cat:"incompressible" },
+  { name:"Mutuelle famille",          total:110,   e:55,      m:55,      cat:"incompressible" },
+  { name:"Scolarité Charly→Robin",    total:165,   e:82.5,    m:82.5,    cat:"incompressible" },
+  { name:"Assur. Peugeot 208",        total:68.51, e:68.51,   m:0,       cat:"incompressible" },
+  { name:"Pharmacie/Santé",           total:60,    e:30,      m:30,      cat:"incompressible" },
+  { name:"Eau",                       total:40,    e:20,      m:20,      cat:"incompressible" },
+  { name:"Internet + téléphone Charly",total:37,   e:18.5,    m:18.5,    cat:"incompressible" },
+  { name:"Frais gestion BP",          total:26.80, e:13.4,    m:13.4,    cat:"incompressible" },
+  { name:"PEL Charly",                total:50,    e:25,      m:25,      cat:"incompressible" },
+  { name:"Restaurants",               total:100,   e:50,      m:50,      cat:"loisirs" },
+  { name:"Loisirs communs",           total:60,    e:30,      m:30,      cat:"loisirs" },
+  { name:"Bricolage/Jardinerie",      total:50,    e:25,      m:25,      cat:"loisirs" },
 ];
 const persoE = [
-  { name:"Études Coline", v:200 },{ name:"Cadeaux", v:85 },
-  { name:"Vacances", v:62.5 },{ name:"Loisirs perso", v:100 },
-  { name:"SFR iPhone", v:42 },{ name:"Impôts", v:55 },
-  { name:"Prévoyance BP", v:3.47 },{ name:"Prévoyance CA", v:4 },
+  { name:"Études Coline",   v:200,  cat:"incompressible" },
+  { name:"Cadeaux",         v:85,   cat:"loisirs" },
+  { name:"Vacances",        v:62.5, cat:"loisirs" },
+  { name:"Loisirs perso",   v:100,  cat:"loisirs" },
+  { name:"SFR iPhone",      v:42,   cat:"incompressible" },
+  { name:"Impôts",          v:55,   cat:"incompressible" },
+  { name:"Prévoyance BP",   v:3.47, cat:"incompressible" },
+  { name:"Prévoyance CA",   v:4,    cat:"incompressible" },
 ];
 const persoM = [
-  { name:"Pension alimentaire", v:250 },{ name:"Prêt Tesla", v:300 },
-  { name:"Péage", v:150 },{ name:"Psychanalyse", v:140 },
-  { name:"Loisirs perso", v:200 },{ name:"Vacances", v:100 },
-  { name:"Cadeaux", v:87.5 },{ name:"Impôts", v:189.93 },
-  { name:"Abonnement IA", v:22 },{ name:"Netflix", v:7.99 },
-  { name:"Abonnement Tesla", v:10 },{ name:"Amazon Prime", v:6.99 },
-  { name:"Abonnement Google", v:2 },{ name:"SFR Red", v:1.99 },
-  { name:"Prévoyance BP", v:8.53 },
+  { name:"Pension alimentaire", v:250,  cat:"incompressible" },
+  { name:"Prêt Tesla",          v:300,  cat:"pret" },
+  { name:"Péage",               v:150,  cat:"incompressible" },
+  { name:"Psychanalyse",        v:140,  cat:"incompressible" },
+  { name:"Loisirs perso",       v:200,  cat:"loisirs" },
+  { name:"Vacances",            v:100,  cat:"loisirs" },
+  { name:"Cadeaux",             v:87.5, cat:"loisirs" },
+  { name:"Impôts",              v:189.93,cat:"incompressible" },
+  { name:"Abonnement IA",       v:22,   cat:"superflu" },
+  { name:"Netflix",             v:7.99, cat:"superflu" },
+  { name:"Abonnement Tesla",    v:10,   cat:"superflu" },
+  { name:"Amazon Prime",        v:6.99, cat:"superflu" },
+  { name:"Abonnement Google",   v:2,    cat:"superflu" },
+  { name:"SFR Red",             v:1.99, cat:"superflu" },
+  { name:"Prévoyance BP",       v:8.53, cat:"incompressible" },
 ];
 
 // ══════════════════════════════════════════
@@ -813,6 +852,10 @@ function updateAll() {
   // KPIs
   document.getElementById('kpi-rev').textContent = fmt(b.totalRev);
   document.getElementById('kpi-dep').textContent = fmt(b.totalDep);
+  const depCommEl = document.getElementById('kpi-dep-comm');
+  const depPersoEl = document.getElementById('kpi-dep-perso');
+  if (depCommEl) depCommEl.textContent = fmt(state.eDepC + state.mDepC);
+  if (depPersoEl) depPersoEl.textContent = fmt(state.eDepP + state.mDepP);
   document.getElementById('kpi-epg').textContent = fmt(b.totalEpg);
   document.getElementById('kpi-sur').textContent = fmtd(b.surplus);
   document.getElementById('kpi-sur').style.color = b.surplus >= 0 ? 'var(--surplus)' : 'var(--danger)';
@@ -950,6 +993,8 @@ function updateAll() {
 
   // Points clés dynamiques
   updatePointsCles();
+  // Chips catégories
+  renderCatChips();
   } finally { window._inUpdateAll = false; }
 }
 
@@ -1002,8 +1047,11 @@ function renderCommunesTable() {
   tb.innerHTML = '';
   communesData.forEach((d,i) => {
     const origTotal = communes[i].total, origE = communes[i].e, origM = communes[i].m;
+    const catOpts = ['pret','incompressible','loisirs','superflu'].map(c =>
+      `<option value="${c}" ${d.cat===c?'selected':''}>${catLabel(c)}</option>`).join('');
     tb.innerHTML += `<tr>
       <td>${d.name}</td>
+      <td><select class="cat-select" onchange="updateCommuneCat(${i},this.value)">${catOpts}</select></td>
       <td class="amt"><input type="number" step="0.01" value="${d.total.toFixed(2)}" class="${d.total!==origTotal?'changed':''}" oninput="updateCommune(${i},'total',this.value,this)" /></td>
       <td class="amt ce"><input type="number" step="0.01" value="${d.e.toFixed(2)}" class="${d.e!==origE?'changed':''}" oninput="updateCommune(${i},'e',this.value,this)" /></td>
       <td class="amt cm"><input type="number" step="0.01" value="${d.m.toFixed(2)}" class="${d.m!==origM?'changed':''}" oninput="updateCommune(${i},'m',this.value,this)" /></td>
@@ -1019,7 +1067,7 @@ function refreshCommunesTotRow() {
   const tb = document.getElementById('communes-tbl');
   const row = tb.insertRow();
   row.className = 'sub';
-  row.innerHTML = `<td>TOTAL</td><td class="amt">${(totE+totM).toFixed(0)} €</td><td class="amt ce">${totE.toFixed(0)} €</td><td class="amt cm">${totM.toFixed(0)} €</td>`;
+  row.innerHTML = `<td>TOTAL</td><td></td><td class="amt">${(totE+totM).toFixed(0)} €</td><td class="amt ce">${totE.toFixed(0)} €</td><td class="amt cm">${totM.toFixed(0)} €</td>`;
 }
 function updateCommune(i, field, val, inputEl) {
   const parsed = parseFloat(val)||0;
@@ -1030,13 +1078,17 @@ function updateCommune(i, field, val, inputEl) {
   refreshCommunesTotRow();
   updateAll(); renderDepBars();
 }
+function updateCommuneCat(i, val) { communesData[i].cat = val; updateAll(); }
 function renderPersoTable(data, origData, tbId, cls) {
   const tb = document.getElementById(tbId);
   tb.innerHTML = '';
   data.forEach((d,i) => {
     const orig = origData[i].v;
+    const catOpts = ['pret','incompressible','loisirs','superflu'].map(c =>
+      `<option value="${c}" ${d.cat===c?'selected':''}>${catLabel(c)}</option>`).join('');
     tb.innerHTML += `<tr>
       <td>${d.name}</td>
+      <td><select class="cat-select" onchange="updatePersoCat('${tbId}',${i},this.value)">${catOpts}</select></td>
       <td class="amt ${cls}"><input type="number" step="0.01" value="${d.v.toFixed(2)}" class="${d.v!==orig?'changed':''}" oninput="updatePerso('${tbId}',${i},this.value,this)" /></td>
     </tr>`;
   });
@@ -1049,7 +1101,7 @@ function refreshPersoTotRow(tbId, data) {
   const tb = document.getElementById(tbId);
   const row = tb.insertRow();
   row.className = 'sub';
-  row.innerHTML = `<td>Total</td><td class="amt">${tot.toFixed(0)} €</td>`;
+  row.innerHTML = `<td>Total</td><td></td><td class="amt">${tot.toFixed(0)} €</td>`;
 }
 function updatePerso(tbId, i, val, inputEl) {
   const parsed = parseFloat(val)||0;
@@ -1066,11 +1118,46 @@ function updatePerso(tbId, i, val, inputEl) {
   }
   updateAll();
 }
+function updatePersoCat(tbId, i, val) {
+  if (tbId === 'perso-e-tbl') persoEData[i].cat = val;
+  else persoMData[i].cat = val;
+  updateAll();
+}
 function resetCommunes() { communesData = communes.map(c=>({...c})); state.eDepC = BASE.eDepC; state.mDepC = BASE.mDepC; renderCommunesTable(); updateAll(); renderDepBars(); }
 function resetPerso(who) {
   if (who==='e') { persoEData = persoE.map(p=>({...p})); state.eDepP = BASE.eDepP; renderPersoTable(persoEData, persoE, 'perso-e-tbl','ce'); }
   else { persoMData = persoM.map(p=>({...p})); state.mDepP = BASE.mDepP; renderPersoTable(persoMData, persoM, 'perso-m-tbl','cm'); }
   updateAll();
+}
+// Helpers catégories
+function catLabel(c) { return {pret:'Prêt',incompressible:'Incompressible',loisirs:'Loisirs',superflu:'Superflu'}[c]||c; }
+function computeCatTotals() {
+  const totals = {pret:0, incompressible:0, loisirs:0, superflu:0};
+  communesData.forEach(d => { totals[d.cat] = (totals[d.cat]||0) + d.total; });
+  persoEData.forEach(d =>  { totals[d.cat] = (totals[d.cat]||0) + d.v; });
+  persoMData.forEach(d =>  { totals[d.cat] = (totals[d.cat]||0) + d.v; });
+  return totals;
+}
+function renderCatChips() {
+  const el = document.getElementById('cat-chips');
+  if (!el) return;
+  const totals = computeCatTotals();
+  const grandTotal = Object.values(totals).reduce((s,v)=>s+v,0);
+  const cats = [
+    { key:'pret',          color:'var(--mikael)',  label:'Prêts' },
+    { key:'incompressible',color:'var(--emilie)',  label:'Incompressibles' },
+    { key:'loisirs',       color:'var(--warning)', label:'Loisirs' },
+    { key:'superflu',      color:'var(--danger)',  label:'Superflus' },
+  ];
+  el.innerHTML = cats.map(c => {
+    const v = totals[c.key]||0;
+    const pct = grandTotal > 0 ? (v/grandTotal*100).toFixed(0) : 0;
+    return `<div class="cat-chip">
+      <div class="chip-label">${c.label}</div>
+      <div class="chip-val" style="color:${c.color}">${v.toLocaleString('fr-FR',{minimumFractionDigits:0,maximumFractionDigits:0})} €</div>
+      <div class="chip-pct">${pct} % des dépenses</div>
+    </div>`;
+  }).join('');
 }
 
 function renderDepBars() {
@@ -1637,17 +1724,26 @@ function applySheetData(data) {
   if (data.state) {
     data.state.slice(1).forEach(([k,v]) => { if (k && v !== '') state[k] = parseFloat(v)||0; });
   }
-  // communes
+  // communes — préserver les cat depuis communes[] par index
   if (data.communes && data.communes.length > 1) {
-    communesData = data.communes.slice(1).map(r => ({ name:r[0], total:parseFloat(r[1])||0, e:parseFloat(r[2])||0, m:parseFloat(r[3])||0 }));
+    communesData = data.communes.slice(1).map((r, i) => ({
+      name:r[0], total:parseFloat(r[1])||0, e:parseFloat(r[2])||0, m:parseFloat(r[3])||0,
+      cat: (r[4] && r[4] !== '') ? r[4] : (communes[i] ? communes[i].cat : 'incompressible')
+    }));
   }
-  // persoE
+  // persoE — préserver les cat
   if (data.persoE && data.persoE.length > 1) {
-    persoEData = data.persoE.slice(1).map(r => ({ name:r[0], v:parseFloat(r[1])||0 }));
+    persoEData = data.persoE.slice(1).map((r, i) => ({
+      name:r[0], v:parseFloat(r[1])||0,
+      cat: (r[2] && r[2] !== '') ? r[2] : (persoE[i] ? persoE[i].cat : 'incompressible')
+    }));
   }
-  // persoM
+  // persoM — préserver les cat
   if (data.persoM && data.persoM.length > 1) {
-    persoMData = data.persoM.slice(1).map(r => ({ name:r[0], v:parseFloat(r[1])||0 }));
+    persoMData = data.persoM.slice(1).map((r, i) => ({
+      name:r[0], v:parseFloat(r[1])||0,
+      cat: (r[2] && r[2] !== '') ? r[2] : (persoM[i] ? persoM[i].cat : 'incompressible')
+    }));
   }
   // poches
   if (data.pochesE && data.pochesE.length > 1) {
