@@ -279,7 +279,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
       <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px">
         <div class="clabel">Dépenses du foyer</div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">
-          <div style="font-size:9px;color:var(--muted2);letter-spacing:.04em">Virement théorique → Compte joint</div>
+          <div style="font-size:9px;color:var(--muted2);letter-spacing:.04em">Virement → Compte joint</div>
           <div style="display:flex;gap:5px">
             <div style="background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.3);border-radius:20px;padding:2px 8px;font-size:10px;display:flex;align-items:center;gap:4px">
               <span style="color:var(--emilie);font-weight:600">E</span>
@@ -429,6 +429,43 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
       <div class="sh">Allocations CAF
         <span style="font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted2)">hors SFT salaire Emilie</span>
       </div>
+    </div>
+
+    <!-- FAUX card pour fermer la grid et ouvrir une nouvelle ligne (3 cards sur 2 lignes) -->
+  </div><!-- fin grid CAF + Points clés -->
+
+  <!-- Projet immo slider -->
+  <div class="card mt12" style="margin-bottom:12px">
+    <div class="sh">🏠 Projet immobilier — simulation mensualité
+      <span style="font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted2)">Impact sur le surplus si le prêt immobilier augmente</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center">
+      <div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:6px">
+          <span id="immo-slider-min-lbl">963 € (actuel)</span>
+          <span>2 500 €</span>
+        </div>
+        <input type="range" id="immo-slider" min="963" max="2500" step="10" value="963"
+          style="width:100%;accent-color:var(--warning);cursor:pointer"
+          oninput="updateImmoSlider(this.value)">
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted2);margin-top:4px">
+          <span>Situation actuelle</span>
+          <span>← Ajuster →</span>
+          <span>Max simulé</span>
+        </div>
+      </div>
+      <div style="text-align:center;min-width:80px">
+        <div style="font-family:var(--mono);font-size:22px;font-weight:600;color:var(--warning)" id="immo-val">963 €</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px">/mois</div>
+        <div style="font-size:11px;font-family:var(--mono);margin-top:6px" id="immo-delta"></div>
+        <div style="font-size:10px;color:var(--muted2);margin-top:2px" id="immo-surplus-lbl"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Réouvrir la grid pour Points clés (maintenant seul) -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;display:none" id="dummy-grid-reopen">
+    <!-- dummy -->
       <div style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center">
         <div>
           <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:6px">
