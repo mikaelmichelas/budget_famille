@@ -1668,18 +1668,18 @@ function buildSheetPayload() {
     ],
     // Onglet "communes"
     communes: [
-      ['name','total','e','m'],
-      ...communesData.map(d => [d.name, d.total, d.e, d.m])
+      ['name','total','e','m','cat'],
+      ...communesData.map(d => [d.name, d.total, d.e, d.m, d.cat||'incompressible'])
     ],
     // Onglet "persoE"
     persoE: [
-      ['name','v'],
-      ...persoEData.map(d => [d.name, d.v])
+      ['name','v','cat'],
+      ...persoEData.map(d => [d.name, d.v, d.cat||'incompressible'])
     ],
     // Onglet "persoM"
     persoM: [
-      ['name','v'],
-      ...persoMData.map(d => [d.name, d.v])
+      ['name','v','cat'],
+      ...persoMData.map(d => [d.name, d.v, d.cat||'incompressible'])
     ],
     // Onglet "pochesE"
     pochesE: [
@@ -1724,25 +1724,31 @@ function applySheetData(data) {
   if (data.state) {
     data.state.slice(1).forEach(([k,v]) => { if (k && v !== '') state[k] = parseFloat(v)||0; });
   }
-  // communes — préserver les cat depuis communes[] par index
+  // communes — cat : Sheets en priorité, sinon constante par nom, sinon 'incompressible'
   if (data.communes && data.communes.length > 1) {
-    communesData = data.communes.slice(1).map((r, i) => ({
+    const catMapC = {};
+    communes.forEach(c => { catMapC[c.name] = c.cat; });
+    communesData = data.communes.slice(1).map(r => ({
       name:r[0], total:parseFloat(r[1])||0, e:parseFloat(r[2])||0, m:parseFloat(r[3])||0,
-      cat: (r[4] && r[4] !== '') ? r[4] : (communes[i] ? communes[i].cat : 'incompressible')
+      cat: (r[4] && r[4] !== '') ? r[4] : (catMapC[r[0]] || 'incompressible')
     }));
   }
-  // persoE — préserver les cat
+  // persoE — cat : Sheets en priorité, sinon constante par nom
   if (data.persoE && data.persoE.length > 1) {
-    persoEData = data.persoE.slice(1).map((r, i) => ({
+    const catMapE = {};
+    persoE.forEach(p => { catMapE[p.name] = p.cat; });
+    persoEData = data.persoE.slice(1).map(r => ({
       name:r[0], v:parseFloat(r[1])||0,
-      cat: (r[2] && r[2] !== '') ? r[2] : (persoE[i] ? persoE[i].cat : 'incompressible')
+      cat: (r[2] && r[2] !== '') ? r[2] : (catMapE[r[0]] || 'incompressible')
     }));
   }
-  // persoM — préserver les cat
+  // persoM — cat : Sheets en priorité, sinon constante par nom
   if (data.persoM && data.persoM.length > 1) {
-    persoMData = data.persoM.slice(1).map((r, i) => ({
+    const catMapM = {};
+    persoM.forEach(p => { catMapM[p.name] = p.cat; });
+    persoMData = data.persoM.slice(1).map(r => ({
       name:r[0], v:parseFloat(r[1])||0,
-      cat: (r[2] && r[2] !== '') ? r[2] : (persoM[i] ? persoM[i].cat : 'incompressible')
+      cat: (r[2] && r[2] !== '') ? r[2] : (catMapM[r[0]] || 'incompressible')
     }));
   }
   // poches
