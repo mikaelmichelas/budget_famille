@@ -429,43 +429,6 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
       <div class="sh">Allocations CAF
         <span style="font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted2)">hors SFT salaire Emilie</span>
       </div>
-    </div>
-
-    <!-- FAUX card pour fermer la grid et ouvrir une nouvelle ligne (3 cards sur 2 lignes) -->
-  </div><!-- fin grid CAF + Points clés -->
-
-  <!-- Projet immo slider -->
-  <div class="card mt12" style="margin-bottom:12px">
-    <div class="sh">🏠 Projet immobilier — simulation mensualité
-      <span style="font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted2)">Impact sur le surplus si le prêt immobilier augmente</span>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center">
-      <div>
-        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:6px">
-          <span id="immo-slider-min-lbl">963 € (actuel)</span>
-          <span>2 500 €</span>
-        </div>
-        <input type="range" id="immo-slider" min="963" max="2500" step="10" value="963"
-          style="width:100%;accent-color:var(--warning);cursor:pointer"
-          oninput="updateImmoSlider(this.value)">
-        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted2);margin-top:4px">
-          <span>Situation actuelle</span>
-          <span>← Ajuster →</span>
-          <span>Max simulé</span>
-        </div>
-      </div>
-      <div style="text-align:center;min-width:80px">
-        <div style="font-family:var(--mono);font-size:22px;font-weight:600;color:var(--warning)" id="immo-val">963 €</div>
-        <div style="font-size:10px;color:var(--muted);margin-top:2px">/mois</div>
-        <div style="font-size:11px;font-family:var(--mono);margin-top:6px" id="immo-delta"></div>
-        <div style="font-size:10px;color:var(--muted2);margin-top:2px" id="immo-surplus-lbl"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Réouvrir la grid pour Points clés (maintenant seul) -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;display:none" id="dummy-grid-reopen">
-    <!-- dummy -->
       <div style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center">
         <div>
           <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:6px">
@@ -501,6 +464,29 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
     </div>
 
   </div><!-- fin CAF + Points clés -->
+
+  <!-- Projet immo slider — moitié gauche, compact -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+    <div class="card" style="margin:0;padding:10px 14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)">🏠 Prêt immo — projet</div>
+        <div style="display:flex;align-items:baseline;gap:4px">
+          <span style="font-family:var(--mono);font-size:18px;font-weight:600;color:var(--warning)" id="immo-val">963 €</span>
+          <span style="font-size:10px;color:var(--muted)">/mois</span>
+        </div>
+      </div>
+      <input type="range" id="immo-slider" min="963" max="1700" step="10" value="963"
+        style="width:100%;accent-color:var(--warning);cursor:pointer;margin-bottom:4px"
+        oninput="updateImmoSlider(this.value)">
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted2)">
+        <span>963 € actuel</span>
+        <span id="immo-delta" style="font-family:var(--mono);font-weight:600"></span>
+        <span>1 700 € max</span>
+      </div>
+    </div>
+    <div><!-- spacer --></div>
+  </div>
+
 </div>
 
 <!-- ═══ PANEL DÉPENSES ═══ -->
@@ -685,7 +671,30 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
     <button id="btn-scen-now"     class="scen-btn active"  onclick="selectScen('now')">📌 Situation actuelle</button>
     <button id="btn-scen-travaux" class="scen-btn"         onclick="selectScen('travaux')">🎉 Fin prêt travaux <span style="font-size:10px;opacity:.7">déc. 2026</span></button>
+    <button id="btn-scen-immo"    class="scen-btn"         onclick="selectScen('immo')">🏠 Projet immobilier</button>
     <button id="btn-scen-custom"  class="scen-btn"         onclick="selectScen('custom')">✏️ Personnalisé</button>
+  </div>
+
+  <!-- Zone projet immo (visible seulement en mode immo) -->
+  <div id="sim-immo-zone" style="display:none;margin-bottom:16px">
+    <div class="card" style="padding:16px">
+      <div style="display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center">
+        <div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Nouvelle mensualité du prêt immobilier</div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:4px">
+            <span>963 € (actuel)</span><span>2 500 €</span>
+          </div>
+          <input type="range" id="sim-immo-slider" min="963" max="1700" step="10" value="963"
+            style="width:100%;accent-color:var(--warning);cursor:pointer"
+            oninput="syncSimImmo()">
+        </div>
+        <div style="text-align:center;min-width:80px">
+          <div style="font-family:var(--mono);font-size:22px;font-weight:600;color:var(--warning)" id="sim-immo-val">963 €</div>
+          <div style="font-size:10px;color:var(--muted)">mensualité</div>
+          <div style="font-size:11px;font-family:var(--mono);font-weight:600;margin-top:4px" id="sim-immo-surcharge"></div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- SLIDERS (visibles seulement en mode custom) -->
@@ -883,6 +892,50 @@ function updateCAF(val) {
   }
   document.getElementById('caf-slider').value = v;
   updateAll();
+}
+
+// ── Slider projet immo (Vue d'ensemble) — modifie le state réel + updateAll ──
+let _immoBase = 963; // mensualité de base du prêt immo (ne change pas)
+function updateImmoSlider(val) {
+  val = parseFloat(val) || 963;
+  const diff = val - _immoBase;
+  const ratioE = 120.375 / 963, ratioM = 842.625 / 963;
+  // Mise à jour de communesData (ligne Prêt immobilier)
+  const idx = communesData.findIndex(d => d.name === 'Prêt immobilier');
+  if (idx >= 0) {
+    communesData[idx].total = val;
+    communesData[idx].e = val * ratioE;
+    communesData[idx].m = val * ratioM;
+  }
+  state.eDepC = communesData.reduce((s,d)=>s+d.e,0);
+  state.mDepC = communesData.reduce((s,d)=>s+d.m,0);
+  // Affichage local
+  const immoVal = document.getElementById('immo-val');
+  const immoDelta = document.getElementById('immo-delta');
+  if (immoVal) immoVal.textContent = Math.round(val).toLocaleString('fr-FR') + ' €';
+  if (immoDelta) {
+    immoDelta.textContent = diff === 0 ? '' : (diff > 0 ? '+' : '') + Math.round(diff).toLocaleString('fr-FR') + ' €';
+    immoDelta.style.color = diff <= 0 ? 'var(--surplus)' : 'var(--danger)';
+  }
+  // Recalcul global
+  updateAll();
+  if (typeof renderCommunesTable === 'function') renderCommunesTable();
+}
+
+// ── Slider projet immo (Simulation) ──
+function syncSimImmo() {
+  const sl = document.getElementById('sim-immo-slider');
+  if (!sl) return;
+  const val = parseFloat(sl.value) || 963;
+  const valEl = document.getElementById('sim-immo-val');
+  const surchargeEl = document.getElementById('sim-immo-surcharge');
+  if (valEl) valEl.textContent = Math.round(val).toLocaleString('fr-FR') + ' €';
+  const diff = val - 963;
+  if (surchargeEl) {
+    surchargeEl.textContent = diff === 0 ? '' : (diff > 0 ? '+' : '') + Math.round(diff).toLocaleString('fr-FR') + ' €/mois';
+    surchargeEl.style.color = diff <= 0 ? 'var(--surplus)' : 'var(--danger)';
+  }
+  syncSim();
 }
 
 function updateAll() {
@@ -1498,8 +1551,16 @@ function getScenValues(key) {
   };
   if (key === 'now') return { ...cur };
   if (key === 'travaux') {
-    // Fin prêt travaux déc. 2026 : +259€/mois libérés → tout en surplus libre, épargne inchangée
     return { ...cur, eDepC: state.eDepC - 129.5, mDepC: state.mDepC - 129.5 };
+  }
+  if (key === 'immo') {
+    const nouv = parseFloat(document.getElementById('sim-immo-slider')?.value) || 963;
+    const diff = nouv - _immoBase;
+    const ratioE = 120.375 / 963, ratioM = 842.625 / 963;
+    // Recalcul depuis les données réelles + surcoût
+    const baseEDepC = communesData.reduce((s,d)=>s+d.e,0);
+    const baseMDepC = communesData.reduce((s,d)=>s+d.m,0);
+    return { ...cur, eDepC: baseEDepC + diff * ratioE, mDepC: baseMDepC + diff * ratioM };
   }
   if (key === 'custom') {
     // Lit les sliders
@@ -1520,13 +1581,15 @@ function getScenValues(key) {
 function selectScen(key) {
   _currentScen = key;
   // Activer le bon bouton
-  ['now','travaux','custom'].forEach(k => {
+  ['now','travaux','immo','custom'].forEach(k => {
     const btn = document.getElementById('btn-scen-'+k);
     if (btn) btn.classList.toggle('active', k===key);
   });
-  // Montrer/cacher les sliders
   const customZone = document.getElementById('sim-custom-zone');
   if (customZone) customZone.style.display = (key==='custom') ? 'block' : 'none';
+  const immoZone = document.getElementById('sim-immo-zone');
+  if (immoZone) immoZone.style.display = (key==='immo') ? 'block' : 'none';
+  if (key === 'immo') syncSimImmo();
   // Si custom, initialiser les sliders sur les valeurs courantes
   if (key === 'custom') {
     const cur = getScenValues('now');
@@ -1575,7 +1638,7 @@ function syncSim() {
   const curEpg = getTotalEpgE() + getTotalEpgM();
 
   // Titres des scénarios
-  const titles = { now: 'Situation actuelle', travaux: 'Fin prêt travaux déc. 2026', custom: 'Scénario personnalisé' };
+  const titles = { now: 'Situation actuelle', travaux: 'Fin prêt travaux déc. 2026', immo: 'Projet immobilier', custom: 'Scénario personnalisé' };
   const titleEl = document.getElementById('sim-scen-title');
   if (titleEl) titleEl.textContent = titles[_currentScen] || '';
 
