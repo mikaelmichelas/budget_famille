@@ -737,6 +737,20 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
         </div>
       </div>
     </div>
+    <!-- Dépenses communes — ligne pleine largeur -->
+    <div style="border-top:1px solid var(--border);margin-top:8px;padding-top:12px">
+      <div class="sim-group-title" style="margin-bottom:8px">🏠 Dépenses communes</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="sim-field">
+          <label>Part Emilie <span class="range-val ce" id="sl-e-depc-v">—</span></label>
+          <input type="range" id="sl-e-depc" min="500" max="3000" step="10" value="1307" oninput="syncSim()">
+        </div>
+        <div class="sim-field">
+          <label>Part Mikael <span class="range-val cm" id="sl-m-depc-v">—</span></label>
+          <input type="range" id="sl-m-depc" min="500" max="3000" step="10" value="2093" oninput="syncSim()">
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- RÉSULTATS -->
@@ -1574,6 +1588,8 @@ function getScenValues(key) {
       mSal2: parseFloat(document.getElementById('sl-m-sal2')?.value)||cur.mSal2,
       mEpg: parseFloat(document.getElementById('sl-m-epg')?.value)||cur.mEpg,
       mDepP: parseFloat(document.getElementById('sl-m-dep')?.value)||cur.mDepP,
+      eDepC: parseFloat(document.getElementById('sl-e-depc')?.value)||cur.eDepC,
+      mDepC: parseFloat(document.getElementById('sl-m-depc')?.value)||cur.mDepC,
     };
     return { ...cur, ...sl };
   }
@@ -1597,7 +1613,8 @@ function selectScen(key) {
     const cur = getScenValues('now');
     const slMap = {
       eSal:'sl-e-sal', eEpg:'sl-e-epg', eDepP:'sl-e-dep',
-      mSal:'sl-m-sal', mSal2:'sl-m-sal2', mEpg:'sl-m-epg', mDepP:'sl-m-dep'
+      mSal:'sl-m-sal', mSal2:'sl-m-sal2', mEpg:'sl-m-epg', mDepP:'sl-m-dep',
+      eDepC:'sl-e-depc', mDepC:'sl-m-depc'
     };
     for (const [k, slId] of Object.entries(slMap)) {
       const el = document.getElementById(slId);
@@ -1615,6 +1632,7 @@ function syncSim() {
     const slLabels = [
       ['sl-e-sal','sl-e-sal-v'], ['sl-e-epg','sl-e-epg-v'], ['sl-e-dep','sl-e-dep-v'],
       ['sl-m-sal','sl-m-sal-v'], ['sl-m-sal2','sl-m-sal2-v'], ['sl-m-epg','sl-m-epg-v'], ['sl-m-dep','sl-m-dep-v'],
+      ['sl-e-depc','sl-e-depc-v'], ['sl-m-depc','sl-m-depc-v'],
     ];
     slLabels.forEach(([slId, lblId]) => {
       const el = document.getElementById(slId);
