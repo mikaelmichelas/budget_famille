@@ -257,172 +257,127 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
 
 <!-- ═══ PANEL VUE D'ENSEMBLE ═══ -->
 <div id="panel-vue" class="panel active">
-  <div class="g4">
+  <!-- Layout asymétrique : Dépenses grand à gauche, 3 mini-cards à droite -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
 
-    <!-- REVENUS -->
-    <div class="card">
-      <div style="display:flex;align-items:center;gap:12px">
-        <div style="position:relative;width:60px;height:60px;flex-shrink:0">
-          <svg width="60" height="60" viewBox="0 0 60 60" style="transform:rotate(-90deg)">
-            <circle fill="none" stroke="var(--border)" stroke-width="6" cx="30" cy="30" r="24"/>
-            <circle id="donut-rev-arc" fill="none" stroke="var(--commun)" stroke-width="6" stroke-linecap="round" cx="30" cy="30" r="24" stroke-dasharray="0 151"/>
+    <!-- DÉPENSES — grande carte gauche -->
+    <div class="card" style="padding:22px 24px;display:flex;flex-direction:column;justify-content:center">
+      <div class="clabel" style="margin-bottom:10px">Dépenses du foyer</div>
+      <!-- Donut grand -->
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
+        <div style="position:relative;width:72px;height:72px;flex-shrink:0">
+          <svg width="72" height="72" viewBox="0 0 72 72" style="transform:rotate(-90deg)">
+            <circle fill="none" stroke="var(--border)" stroke-width="6" cx="36" cy="36" r="29"/>
+            <circle id="donut-dep-arc" fill="none" stroke="var(--mikael)" stroke-width="6" stroke-linecap="round" cx="36" cy="36" r="29" stroke-dasharray="0 182"/>
           </svg>
-          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px">
-            <span id="donut-rev-pct" style="font-family:var(--mono);font-size:12px;font-weight:500;color:var(--commun);line-height:1">—%</span>
-            <span style="font-size:9px;color:var(--muted);line-height:1">rev.</span>
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+            <span id="donut-dep-pct" style="font-family:var(--mono);font-size:13px;font-weight:600;color:var(--mikael);line-height:1">—%</span>
+            <span style="font-size:9px;color:var(--muted);margin-top:2px">du revenu</span>
           </div>
         </div>
         <div>
+          <div class="cvalue" id="kpi-dep" style="color:var(--mikael);font-size:30px">—</div>
+          <div class="csub">total mensuel</div>
+        </div>
+      </div>
+      <!-- Barres E/M -->
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <div style="display:flex;align-items:center;gap:6px;font-size:12px">
+          <span class="ce" style="width:14px">E</span>
+          <div style="flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden"><div id="kpi-dep-bar-e" style="height:100%;background:var(--emilie);border-radius:2px;width:0%"></div></div>
+          <span class="ce" style="font-family:var(--mono);min-width:58px;text-align:right" id="kpi-dep-e-lbl">—</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:12px">
+          <span class="cm" style="width:14px">M</span>
+          <div style="flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden"><div id="kpi-dep-bar-m" style="height:100%;background:var(--mikael);border-radius:2px;width:0%"></div></div>
+          <span class="cm" style="font-family:var(--mono);min-width:58px;text-align:right" id="kpi-dep-m-lbl">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3 mini-cards droite -->
+    <div style="display:flex;flex-direction:column;gap:10px">
+
+      <!-- REVENUS -->
+      <div class="card" style="padding:12px 14px;display:flex;align-items:center;justify-content:space-between">
+        <div style="flex:1;min-width:0">
           <div class="clabel" style="margin-bottom:3px">Revenus</div>
-          <div class="cvalue" id="kpi-rev" style="color:var(--commun)">6 637 €</div>
-        </div>
-      </div>
-      <div style="margin-top:12px;display:flex;flex-direction:column;gap:5px">
-        <div style="display:flex;justify-content:space-between;font-size:11px">
-          <span class="ce">● Emilie</span><span class="ce" style="font-family:var(--mono)" id="kpi-rev-e-lbl">—</span>
-        </div>
-        <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden">
-          <div id="kpi-rev-bar-e" style="height:100%;background:var(--emilie);opacity:.8;border-radius:2px;width:0%"></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:11px">
-          <span class="cm">● Mikael</span><span class="cm" style="font-family:var(--mono)" id="kpi-rev-m-lbl">—</span>
-        </div>
-        <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden">
-          <div id="kpi-rev-bar-m" style="height:100%;background:var(--mikael);opacity:.8;border-radius:2px;width:0%"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- DÉPENSES -->
-    <div class="card">
-      <div style="display:flex;align-items:center;gap:12px">
-        <div style="position:relative;width:60px;height:60px;flex-shrink:0">
-          <svg width="60" height="60" viewBox="0 0 60 60" style="transform:rotate(-90deg)">
-            <circle fill="none" stroke="var(--border)" stroke-width="6" cx="30" cy="30" r="24"/>
-            <circle id="donut-dep-arc" fill="none" stroke="var(--mikael)" stroke-width="6" stroke-linecap="round" cx="30" cy="30" r="24" stroke-dasharray="0 151"/>
-          </svg>
-          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px">
-            <span id="donut-dep-pct" style="font-family:var(--mono);font-size:12px;font-weight:500;color:var(--mikael);line-height:1">—%</span>
-            <span style="font-size:9px;color:var(--muted);line-height:1">rev.</span>
+          <div class="cvalue" id="kpi-rev" style="color:var(--commun);font-size:18px">—</div>
+          <div style="display:flex;gap:8px;margin-top:5px;font-size:11px">
+            <span class="ce" style="font-family:var(--mono)" id="kpi-rev-e-lbl">—</span>
+            <span style="color:var(--muted2)">·</span>
+            <span class="cm" style="font-family:var(--mono)" id="kpi-rev-m-lbl">—</span>
           </div>
         </div>
-        <div>
-          <div class="clabel" style="margin-bottom:3px">Dépenses</div>
-          <div class="cvalue" id="kpi-dep" style="color:var(--mikael)">5 429 €</div>
-        </div>
-      </div>
-      <div style="margin-top:12px;display:flex;flex-direction:column;gap:5px">
-        <div style="display:flex;justify-content:space-between;font-size:11px">
-          <span class="ce">● Emilie</span><span class="ce" style="font-family:var(--mono)" id="kpi-dep-e-lbl">—</span>
-        </div>
-        <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden">
-          <div id="kpi-dep-bar-e" style="height:100%;background:var(--emilie);opacity:.8;border-radius:2px;width:0%"></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:11px">
-          <span class="cm">● Mikael</span><span class="cm" style="font-family:var(--mono)" id="kpi-dep-m-lbl">—</span>
-        </div>
-        <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden">
-          <div id="kpi-dep-bar-m" style="height:100%;background:var(--mikael);opacity:.8;border-radius:2px;width:0%"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ÉPARGNE -->
-    <div class="card">
-      <div style="display:flex;align-items:center;gap:12px">
-        <div style="position:relative;width:60px;height:60px;flex-shrink:0">
-          <svg width="60" height="60" viewBox="0 0 60 60" style="transform:rotate(-90deg)">
-            <circle fill="none" stroke="var(--border)" stroke-width="6" cx="30" cy="30" r="24"/>
-            <circle id="donut-epg-arc" fill="none" stroke="var(--emilie)" stroke-width="6" stroke-linecap="round" cx="30" cy="30" r="24" stroke-dasharray="0 151"/>
+        <div style="position:relative;width:36px;height:36px;flex-shrink:0;margin-left:10px">
+          <svg width="36" height="36" viewBox="0 0 36 36" style="transform:rotate(-90deg)">
+            <circle fill="none" stroke="var(--border)" stroke-width="4" cx="18" cy="18" r="13"/>
+            <circle id="donut-rev-arc" fill="none" stroke="var(--commun)" stroke-width="4" stroke-linecap="round" cx="18" cy="18" r="13" stroke-dasharray="0 82"/>
           </svg>
-          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px">
-            <span id="donut-epg-pct" style="font-family:var(--mono);font-size:12px;font-weight:500;color:var(--emilie);line-height:1">—%</span>
-            <span style="font-size:9px;color:var(--muted);line-height:1">rev.</span>
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
+            <span id="donut-rev-pct" style="font-family:var(--mono);font-size:9px;font-weight:600;color:var(--commun)">—%</span>
           </div>
         </div>
-        <div>
+        <!-- barres cachées, conservées pour compatibilité JS -->
+        <div style="display:none"><div id="kpi-rev-bar-e"></div><div id="kpi-rev-bar-m"></div></div>
+      </div>
+
+      <!-- ÉPARGNE -->
+      <div class="card" style="padding:12px 14px;display:flex;align-items:center;justify-content:space-between">
+        <div style="flex:1;min-width:0">
           <div class="clabel" style="margin-bottom:3px">Épargne</div>
-          <div class="cvalue" id="kpi-epg" style="color:var(--emilie)">600 €</div>
-        </div>
-      </div>
-      <div style="margin-top:12px;display:flex;flex-direction:column;gap:5px">
-        <div style="display:flex;justify-content:space-between;font-size:11px">
-          <span class="ce">● Emilie</span><span class="ce" style="font-family:var(--mono)" id="kpi-epg-e-lbl">—</span>
-        </div>
-        <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden">
-          <div id="kpi-epg-bar-e" style="height:100%;background:var(--emilie);opacity:.8;border-radius:2px;width:0%"></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:11px">
-          <span class="cm">● Mikael</span><span class="cm" style="font-family:var(--mono)" id="kpi-epg-m-lbl">—</span>
-        </div>
-        <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden">
-          <div id="kpi-epg-bar-m" style="height:100%;background:var(--mikael);opacity:.8;border-radius:2px;width:0%"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- SURPLUS -->
-    <div class="card" id="kpi-sur-card">
-      <div style="display:flex;align-items:center;gap:12px">
-        <div style="position:relative;width:60px;height:60px;flex-shrink:0">
-          <svg width="60" height="60" viewBox="0 0 60 60" style="transform:rotate(-90deg)">
-            <circle fill="none" stroke="var(--border)" stroke-width="6" cx="30" cy="30" r="24"/>
-            <circle id="donut-sur-arc" fill="none" stroke="var(--surplus)" stroke-width="6" stroke-linecap="round" cx="30" cy="30" r="24" stroke-dasharray="0 151"/>
-          </svg>
-          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px">
-            <span id="donut-sur-pct" style="font-family:var(--mono);font-size:12px;font-weight:500;color:var(--surplus);line-height:1">—%</span>
-            <span style="font-size:9px;color:var(--muted);line-height:1">rev.</span>
+          <div class="cvalue" id="kpi-epg" style="color:var(--emilie);font-size:18px">—</div>
+          <div style="display:flex;gap:8px;margin-top:5px;font-size:11px">
+            <span class="ce" style="font-family:var(--mono)" id="kpi-epg-e-lbl">—</span>
+            <span style="color:var(--muted2)">·</span>
+            <span class="cm" style="font-family:var(--mono)" id="kpi-epg-m-lbl">—</span>
           </div>
         </div>
-        <div>
+        <div style="position:relative;width:36px;height:36px;flex-shrink:0;margin-left:10px">
+          <svg width="36" height="36" viewBox="0 0 36 36" style="transform:rotate(-90deg)">
+            <circle fill="none" stroke="var(--border)" stroke-width="4" cx="18" cy="18" r="13"/>
+            <circle id="donut-epg-arc" fill="none" stroke="var(--emilie)" stroke-width="4" stroke-linecap="round" cx="18" cy="18" r="13" stroke-dasharray="0 82"/>
+          </svg>
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
+            <span id="donut-epg-pct" style="font-family:var(--mono);font-size:9px;font-weight:600;color:var(--emilie)">—%</span>
+          </div>
+        </div>
+        <!-- barres cachées -->
+        <div style="display:none"><div id="kpi-epg-bar-e"></div><div id="kpi-epg-bar-m"></div></div>
+      </div>
+
+      <!-- SURPLUS -->
+      <div class="card" style="padding:12px 14px;display:flex;align-items:center;justify-content:space-between" id="kpi-sur-card">
+        <div style="flex:1;min-width:0">
           <div class="clabel" style="margin-bottom:3px">Surplus libre</div>
-          <div class="cvalue cs" id="kpi-sur">+208 €</div>
+          <div class="cvalue cs" id="kpi-sur" style="font-size:18px">—</div>
+          <div style="display:flex;gap:8px;margin-top:5px;font-size:11px">
+            <span style="font-family:var(--mono)" id="kpi-sur-e">—</span>
+            <span style="color:var(--muted2)">·</span>
+            <span style="font-family:var(--mono)" id="kpi-sur-m">—</span>
+          </div>
+        </div>
+        <div style="position:relative;width:36px;height:36px;flex-shrink:0;margin-left:10px">
+          <svg width="36" height="36" viewBox="0 0 36 36" style="transform:rotate(-90deg)">
+            <circle fill="none" stroke="var(--border)" stroke-width="4" cx="18" cy="18" r="13"/>
+            <circle id="donut-sur-arc" fill="none" stroke="var(--surplus)" stroke-width="4" stroke-linecap="round" cx="18" cy="18" r="13" stroke-dasharray="0 82"/>
+          </svg>
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
+            <span id="donut-sur-pct" style="font-family:var(--mono);font-size:9px;font-weight:600;color:var(--surplus)">—%</span>
+          </div>
+        </div>
+        <!-- barres + éléments cachés pour JS -->
+        <div style="display:none">
+          <div id="kpi-sur-bar-e"></div><div id="kpi-sur-bar-m"></div>
+          <span id="kpi-vir-e"></span><span id="kpi-vir-m"></span><span id="kpi-caf-demi"></span>
         </div>
       </div>
-      <div style="margin-top:12px;display:flex;flex-direction:column;gap:5px">
-        <div style="display:flex;justify-content:space-between;font-size:11px">
-          <span class="ce">● Emilie</span><span style="font-family:var(--mono)" id="kpi-sur-e">—</span>
-        </div>
-        <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden">
-          <div id="kpi-sur-bar-e" style="height:100%;background:var(--emilie);opacity:.8;border-radius:2px;width:0%"></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:11px">
-          <span class="cm">● Mikael</span><span style="font-family:var(--mono)" id="kpi-sur-m">—</span>
-        </div>
-        <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden">
-          <div id="kpi-sur-bar-m" style="height:100%;background:var(--mikael);opacity:.8;border-radius:2px;width:0%"></div>
-        </div>
-        <div style="height:1px;background:var(--border);margin:3px 0"></div>
-        <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:1px">Virement → joint</div>
-        <div style="display:flex;justify-content:space-between;font-size:11px">
-          <span class="ce">Emilie vire</span><span style="font-family:var(--mono);color:var(--emilie)" id="kpi-vir-e">—</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:11px">
-          <span class="cm">Mikael vire</span><span style="font-family:var(--mono);color:var(--mikael)" id="kpi-vir-m">—</span>
-        </div>
-        <div style="font-size:10px;color:var(--muted2);margin-top:2px">CAF <span id="kpi-caf-demi">154</span> €/pers. déduite</div>
-      </div>
+
     </div>
   </div>
 
-  <!-- Barre équilibre + CAF côte à côte -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
-  <div class="card">
-    <div class="sh">Équilibre mensuel du budget</div>
-    <div style="margin-bottom:8px;font-size:12px;color:var(--muted)">Répartition des <span id="eq-total" style="color:var(--text);font-family:var(--mono)">6 637 €</span> de revenus mensuels</div>
-    <div style="display:flex;height:28px;border-radius:7px;overflow:hidden;gap:2px" id="eq-bar">
-      <div id="eq-dep" style="background:rgba(167,139,250,0.5);flex:5429;display:flex;align-items:center;justify-content:center;font-size:11px;font-family:var(--mono)">Dép. 5 429 €</div>
-      <div id="eq-epg" style="background:rgba(110,198,245,0.6);flex:600;display:flex;align-items:center;justify-content:center;font-size:10px"></div>
-      <div id="eq-sur" style="background:rgba(52,211,153,0.6);flex:608;display:flex;align-items:center;justify-content:center;font-size:10px"></div>
-    </div>
-    <div style="display:flex;gap:16px;margin-top:8px;font-size:11px;color:var(--muted)">
-      <span>🟣 Dépenses <span class="val cm" id="eq-dep-lbl">5 429 €</span></span>
-      <span>🔵 Épargne <span id="eq-epg-lbl" style="font-family:var(--mono)">600 €</span></span>
-      <span>🟢 Surplus <span id="eq-sur-lbl" style="font-family:var(--mono);color:var(--surplus)">608 €</span></span>
-    </div>
-  </div>
-
-  <!-- CAF slider -->
+  <!-- CAF seul (barre équilibre supprimée — doublon des donuts) -->
+  <div style="margin-bottom:12px">
   <div class="card">
     <div class="sh">Allocations familiales CAF — couple
       <span style="font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted2)">Distinct du SFT inclus dans le salaire d'Emilie</span>
@@ -433,7 +388,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
           <span>0 €</span>
           <span>600 €</span>
         </div>
-        <input type="range" id="caf-slider" min="0" max="600" step="5" value="308"
+        <input type="range" id="caf-slider" min="0" max="600" step="5" value="210"
           style="width:100%;accent-color:var(--commun);cursor:pointer"
           oninput="updateCAF(this.value)">
         <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted2);margin-top:4px">
@@ -443,13 +398,13 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
         </div>
       </div>
       <div style="text-align:center;min-width:90px">
-        <div style="font-family:var(--mono);font-size:28px;font-weight:600;color:var(--commun)" id="caf-val">308 €</div>
+        <div style="font-family:var(--mono);font-size:28px;font-weight:600;color:var(--commun)" id="caf-val">210 €</div>
         <div style="font-size:10px;color:var(--muted);margin-top:2px">/mois</div>
         <div style="font-size:10px;color:var(--muted2);margin-top:4px" id="caf-delta"></div>
       </div>
     </div>
   </div>
-  </div><!-- fin grid équilibre+CAF -->
+  </div><!-- fin CAF -->
 
   <!-- Highlights -->
   <div class="card mt12">
@@ -548,41 +503,28 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
       <div class="pstat"><span class="lbl">Taux d'épargne</span><span class="val cm" id="m-txepg">−</span></div>
     </div>
   </div>
-  <!-- Barre visuelle perso -->
-  <div class="card">
-    <div class="sh">Revenus vs Dépenses vs Épargne</div>
-    <div style="display:flex;flex-direction:column;gap:22px;padding-top:8px">
-
-      <!-- EMILIE -->
-      <div>
-        <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:12px">
-          <span class="ce" style="font-weight:600">Emilie</span>
-          <span style="color:var(--muted);font-family:var(--mono)" id="e-bar-lbl">2 354 € revenu</span>
-        </div>
-        <!-- Étiquettes au-dessus -->
-        <div style="display:flex;gap:2px;margin-bottom:3px;font-size:10px;font-family:var(--mono)" id="e-bar-labels"></div>
-        <!-- Barre -->
-        <div style="display:flex;gap:2px;height:26px;border-radius:6px;overflow:hidden" id="e-bar"></div>
-        <!-- Légende inline -->
-        <div style="display:flex;gap:16px;margin-top:5px;font-size:10px;color:var(--muted)" id="e-bar-legend"></div>
+  <!-- Barres visuelles perso — 2 cards séparés -->
+  <div class="g2">
+    <div class="card">
+      <div class="sh"><span class="dot e" style="margin-right:5px"></span>Emilie — Revenus vs dépenses</div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:12px">
+        <span class="ce" style="font-weight:600" id="e-bar-lbl">— revenu</span>
       </div>
-
-      <!-- MIKAEL -->
-      <div>
-        <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:12px">
-          <span class="cm" style="font-weight:600">Mikael</span>
-          <span style="color:var(--muted);font-family:var(--mono)" id="m-bar-lbl">4 283 € revenu</span>
-        </div>
-        <!-- Étiquettes au-dessus -->
-        <div style="display:flex;gap:2px;margin-bottom:3px;font-size:10px;font-family:var(--mono)" id="m-bar-labels"></div>
-        <!-- Barre -->
-        <div style="display:flex;gap:2px;height:26px;border-radius:6px;overflow:hidden" id="m-bar"></div>
-        <!-- Légende inline -->
-        <div style="display:flex;gap:16px;margin-top:5px;font-size:10px;color:var(--muted)" id="m-bar-legend"></div>
+      <div style="display:flex;gap:2px;margin-bottom:3px;font-size:10px;font-family:var(--mono)" id="e-bar-labels"></div>
+      <div style="display:flex;gap:2px;height:26px;border-radius:6px;overflow:hidden" id="e-bar"></div>
+      <div style="display:flex;gap:16px;margin-top:5px;font-size:10px;color:var(--muted)" id="e-bar-legend"></div>
+    </div>
+    <div class="card">
+      <div class="sh"><span class="dot m" style="margin-right:5px"></span>Mikael — Revenus vs dépenses</div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:12px">
+        <span class="cm" style="font-weight:600" id="m-bar-lbl">— revenu</span>
       </div>
+      <div style="display:flex;gap:2px;margin-bottom:3px;font-size:10px;font-family:var(--mono)" id="m-bar-labels"></div>
+      <div style="display:flex;gap:2px;height:26px;border-radius:6px;overflow:hidden" id="m-bar"></div>
+      <div style="display:flex;gap:16px;margin-top:5px;font-size:10px;color:var(--muted)" id="m-bar-legend"></div>
     </div>
   </div>
-  <div class="note mt12">La CAF (<strong id="note-caf-val">308 €</strong>/mois) est reçue sur le compte joint et couvre une partie des dépenses communes — chacun vire donc <strong id="note-caf-demi">154 €</strong> de moins. Elle n'est pas du surplus libre.</div>
+  <div class="note mt12">La CAF (<strong id="note-caf-val">210 €</strong>/mois) est reçue sur le compte joint et couvre une partie des dépenses communes — chacun vire donc <strong id="note-caf-demi">105 €</strong> de moins. Elle n'est pas du surplus libre.</div>
 </div>
 
 <!-- ═══ PANEL ÉPARGNE ═══ -->
@@ -740,7 +682,7 @@ const BASE = {
   // Impôts dans les dépenses perso. TaxRate = 0.
   eSal: 2200, eSal2: 0, eSft: 0, eTaxRate: 0,
   mSal: 2895, mSal2: 1234, mTaxRate: 0,
-  caf: 308,
+  caf: 210,
   eEpg: 200, mEpg: 400,
   eDepP: 552.0, mDepP: 1477.0,
   eDepC: 1306.835, mDepC: 2093.005,
@@ -874,79 +816,57 @@ function updateAll() {
   document.getElementById('kpi-epg').textContent = fmt(b.totalEpg);
   document.getElementById('kpi-sur').textContent = fmtd(b.surplus);
   document.getElementById('kpi-sur').style.color = b.surplus >= 0 ? 'var(--surplus)' : 'var(--danger)';
-  // Décomposition surplus + virements compte joint
-  const surE = document.getElementById('kpi-sur-e');
-  const surM = document.getElementById('kpi-sur-m');
+  // Éléments cachés (virements/CAF — DOM conservé pour compatibilité)
   const virE = document.getElementById('kpi-vir-e');
   const virM = document.getElementById('kpi-vir-m');
   const cafDemiEl = document.getElementById('kpi-caf-demi');
-  if (surE) {
-    surE.textContent = fmtd(b.eSurplus);
-    surE.style.color = b.eSurplus >= 0 ? 'var(--surplus)' : 'var(--danger)';
-    surM.textContent = fmtd(b.mSurplus);
-    surM.style.color = b.mSurplus >= 0 ? 'var(--surplus)' : 'var(--danger)';
-    if (virE) virE.textContent = fmt(Math.max(0, b.eVirement));
-    if (virM) virM.textContent = fmt(Math.max(0, b.mVirement));
-    if (cafDemiEl) cafDemiEl.textContent = Math.round(b.cafDemi);
-  }
+  if (virE) virE.textContent = fmt(Math.max(0, b.eVirement));
+  if (virM) virM.textContent = fmt(Math.max(0, b.mVirement));
+  if (cafDemiEl) cafDemiEl.textContent = Math.round(b.cafDemi);
   const sb = document.getElementById('global-surplus');
   sb.textContent = 'Surplus · ' + fmtd(b.surplus) + '/mois';
   sb.className = 'surplus-badge' + (b.surplus < 0 ? ' neg' : '');
 
-  // Donuts + barres hybrides — Vue d'ensemble
-  const C = 150.8; // 2 * PI * 24 (r=24)
+  // Donuts — Vue d'ensemble (layout asymétrique)
+  // Dépenses : grand donut r=29, C=182.2 | Revenus/Épargne/Surplus : mini r=13, C=81.7
+  const C_DEP = 182.2;
+  const C_MINI = 81.7;
   const eDepTot = state.eDepC + state.eDepP;
   const mDepTot = state.mDepC + state.mDepP;
-  // Revenus
+  // Revenus (mini)
   document.getElementById('kpi-rev-e-lbl').textContent = fmt(b.eNet);
   document.getElementById('kpi-rev-m-lbl').textContent = fmt(b.mNet);
-  const eRevPct = b.totalRev > 0 ? (b.eNet / b.totalRev) * 100 : 50;
-  document.getElementById('kpi-rev-bar-e').style.width = eRevPct + '%';
-  document.getElementById('kpi-rev-bar-m').style.width = (100 - eRevPct) + '%';
-  const revArc = C; // 100% du cercle = "revenus sur revenus"
-  document.getElementById('donut-rev-arc').setAttribute('stroke-dasharray', C.toFixed(1) + ' ' + C.toFixed(1));
+  document.getElementById('donut-rev-arc').setAttribute('stroke-dasharray', C_MINI.toFixed(1) + ' ' + C_MINI.toFixed(1));
   document.getElementById('donut-rev-pct').textContent = '100%';
-  // Dépenses
+  // Dépenses (grand)
   document.getElementById('kpi-dep-e-lbl').textContent = fmt(eDepTot);
   document.getElementById('kpi-dep-m-lbl').textContent = fmt(mDepTot);
   const eDepPct = eDepTot + mDepTot > 0 ? (eDepTot / (eDepTot + mDepTot)) * 100 : 50;
   document.getElementById('kpi-dep-bar-e').style.width = eDepPct + '%';
   document.getElementById('kpi-dep-bar-m').style.width = (100 - eDepPct) + '%';
-  const depArc = b.totalRev > 0 ? Math.min((b.totalDep / b.totalRev) * C, C) : 0;
-  document.getElementById('donut-dep-arc').setAttribute('stroke-dasharray', depArc.toFixed(1) + ' ' + C.toFixed(1));
+  const depArc = b.totalRev > 0 ? Math.min((b.totalDep / b.totalRev) * C_DEP, C_DEP) : 0;
+  document.getElementById('donut-dep-arc').setAttribute('stroke-dasharray', depArc.toFixed(1) + ' ' + C_DEP.toFixed(1));
   document.getElementById('donut-dep-pct').textContent = b.totalRev > 0 ? Math.round(b.totalDep / b.totalRev * 100) + '%' : '—%';
-  // Épargne
+  // Épargne (mini)
   document.getElementById('kpi-epg-e-lbl').textContent = fmt(state.eEpg);
   document.getElementById('kpi-epg-m-lbl').textContent = fmt(state.mEpg);
-  const epgTot = state.eEpg + state.mEpg;
-  const eEpgPct = epgTot > 0 ? (state.eEpg / epgTot) * 100 : 50;
-  document.getElementById('kpi-epg-bar-e').style.width = eEpgPct + '%';
-  document.getElementById('kpi-epg-bar-m').style.width = (100 - eEpgPct) + '%';
-  const epgArc = b.totalRev > 0 ? Math.min((b.totalEpg / b.totalRev) * C, C) : 0;
-  document.getElementById('donut-epg-arc').setAttribute('stroke-dasharray', epgArc.toFixed(1) + ' ' + C.toFixed(1));
+  const epgArc = b.totalRev > 0 ? Math.min((b.totalEpg / b.totalRev) * C_MINI, C_MINI) : 0;
+  document.getElementById('donut-epg-arc').setAttribute('stroke-dasharray', epgArc.toFixed(1) + ' ' + C_MINI.toFixed(1));
   document.getElementById('donut-epg-pct').textContent = b.totalRev > 0 ? Math.round(b.totalEpg / b.totalRev * 100) + '%' : '—%';
-  // Surplus — barres
-  const surposTot = Math.max(b.eSurplus, 0) + Math.max(b.mSurplus, 0);
-  const eSurPosPct = surposTot > 0 ? (Math.max(b.eSurplus, 0) / surposTot) * 100 : 50;
-  document.getElementById('kpi-sur-bar-e').style.width = eSurPosPct + '%';
-  document.getElementById('kpi-sur-bar-m').style.width = (100 - eSurPosPct) + '%';
-  const surArc = b.totalRev > 0 ? Math.max(0, Math.min((b.surplus / b.totalRev) * C, C)) : 0;
+  // Surplus (mini)
+  const surArc = b.totalRev > 0 ? Math.max(0, Math.min((b.surplus / b.totalRev) * C_MINI, C_MINI)) : 0;
   const surColor = b.surplus >= 0 ? 'var(--surplus)' : 'var(--danger)';
-  document.getElementById('donut-sur-arc').setAttribute('stroke-dasharray', surArc.toFixed(1) + ' ' + C.toFixed(1));
+  document.getElementById('donut-sur-arc').setAttribute('stroke-dasharray', surArc.toFixed(1) + ' ' + C_MINI.toFixed(1));
   document.getElementById('donut-sur-arc').style.stroke = surColor;
   document.getElementById('donut-sur-pct').textContent = b.totalRev > 0 ? Math.round(Math.abs(b.surplus) / b.totalRev * 100) + '%' : '—%';
   document.getElementById('donut-sur-pct').style.color = surColor;
+  // Surplus labels E/M (texte inline)
+  const surEEl = document.getElementById('kpi-sur-e');
+  const surMEl = document.getElementById('kpi-sur-m');
+  if (surEEl) { surEEl.textContent = fmtd(b.eSurplus); surEEl.style.color = b.eSurplus >= 0 ? 'var(--surplus)' : 'var(--danger)'; }
+  if (surMEl) { surMEl.textContent = fmtd(b.mSurplus); surMEl.style.color = b.mSurplus >= 0 ? 'var(--surplus)' : 'var(--danger)'; }
 
-  // Barre équilibre
-  const tot = b.totalRev;
-  document.getElementById('eq-total').textContent = fmt(tot);
-  document.getElementById('eq-dep').style.flex = b.totalDep;
-  document.getElementById('eq-epg').style.flex = b.totalEpg;
-  document.getElementById('eq-sur').style.flex = Math.max(b.surplus, 0);
-  document.getElementById('eq-dep').textContent = 'Dép. ' + fmt(b.totalDep);
-  document.getElementById('eq-dep-lbl').textContent = fmt(b.totalDep);
-  document.getElementById('eq-epg-lbl').textContent = fmt(b.totalEpg);
-  document.getElementById('eq-sur-lbl').textContent = fmtd(b.surplus);
+  // (barre équilibre supprimée)
 
   // Personnes — épargne lue depuis les poches (onglet Épargne), pas state.eEpg figé
   const eNet = b.eNet, mNet = b.mNet;
