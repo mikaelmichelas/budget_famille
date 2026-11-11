@@ -843,7 +843,7 @@ function calcNet(sal, sal2, sft, taxRate) {
 function computeBudget(o) {
   const eNet = calcNet(o.eSal, o.eSal2||0, o.eSft, o.eTaxRate);
   const mNet = calcNet(o.mSal, o.mSal2||0, 0, o.mTaxRate);
-  const totalRev = eNet + mNet + o.caf;
+  const totalRev = eNet + mNet;
   const totalDep = o.eDepC + o.mDepC + o.eDepP + o.mDepP;
   const totalEpg = o.eEpg + o.mEpg;
   // Épargne réelle lue depuis les poches (ou fallback sur state)
