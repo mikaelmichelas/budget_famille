@@ -421,38 +421,62 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
     </div>
   </div>
 
-  <!-- CAF + Points clés — côte à côte 50/50 -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+  <!-- CAF + Prêt immo (gauche) | Points clés (droite) — même hauteur -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;align-items:stretch">
 
-    <!-- CAF -->
-    <div class="card" style="margin:0">
-      <div class="sh">Allocations CAF
-        <span style="font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted2)">hors SFT salaire Emilie</span>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center">
-        <div>
-          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:6px">
-            <span>0 €</span>
-            <span>600 €</span>
+    <!-- Colonne gauche : CAF + Prêt immo empilés -->
+    <div style="display:flex;flex-direction:column;gap:12px">
+
+      <!-- CAF -->
+      <div class="card" style="margin:0;flex:1">
+        <div class="sh">Allocations CAF
+          <span style="font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted2)">hors SFT salaire Emilie</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center">
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:6px">
+              <span>0 €</span>
+              <span>600 €</span>
+            </div>
+            <input type="range" id="caf-slider" min="0" max="600" step="5" value="210"
+              style="width:100%;accent-color:var(--commun);cursor:pointer"
+              oninput="updateCAF(this.value)">
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted2);margin-top:4px">
+              <span>Aucune</span>
+              <span>← Ajuster →</span>
+              <span>Actuel</span>
+            </div>
           </div>
-          <input type="range" id="caf-slider" min="0" max="600" step="5" value="210"
-            style="width:100%;accent-color:var(--commun);cursor:pointer"
-            oninput="updateCAF(this.value)">
-          <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted2);margin-top:4px">
-            <span>Aucune</span>
-            <span>← Ajuster →</span>
-            <span>Actuel</span>
+          <div style="text-align:center;min-width:70px">
+            <div style="font-family:var(--mono);font-size:24px;font-weight:600;color:var(--commun)" id="caf-val">210 €</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px">/mois</div>
+            <div style="font-size:10px;color:var(--muted2);margin-top:4px" id="caf-delta"></div>
           </div>
         </div>
-        <div style="text-align:center;min-width:70px">
-          <div style="font-family:var(--mono);font-size:24px;font-weight:600;color:var(--commun)" id="caf-val">210 €</div>
-          <div style="font-size:10px;color:var(--muted);margin-top:2px">/mois</div>
-          <div style="font-size:10px;color:var(--muted2);margin-top:4px" id="caf-delta"></div>
+      </div>
+
+      <!-- Prêt immo -->
+      <div class="card" style="margin:0;padding:10px 14px;flex:0 0 auto">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)">🏠 Prêt immo — projet</div>
+          <div style="display:flex;align-items:baseline;gap:4px">
+            <span style="font-family:var(--mono);font-size:18px;font-weight:600;color:var(--warning)" id="immo-val">963 €</span>
+            <span style="font-size:10px;color:var(--muted)">/mois</span>
+          </div>
+        </div>
+        <input type="range" id="immo-slider" min="963" max="1700" step="10" value="963"
+          style="width:100%;accent-color:var(--warning);cursor:pointer;margin-bottom:4px"
+          oninput="updateImmoSlider(this.value)">
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted2)">
+          <span>963 € actuel</span>
+          <span id="immo-delta" style="font-family:var(--mono);font-weight:600"></span>
+          <span>1 700 € max</span>
         </div>
       </div>
-    </div>
 
-    <!-- Points clés -->
+    </div><!-- fin colonne gauche -->
+
+    <!-- Points clés — pleine hauteur droite -->
     <div class="card" style="margin:0">
       <div class="sh">Points clés</div>
       <div style="display:flex;flex-direction:column;gap:6px">
@@ -463,29 +487,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
       </div>
     </div>
 
-  </div><!-- fin CAF + Points clés -->
-
-  <!-- Projet immo slider — moitié gauche, compact -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
-    <div class="card" style="margin:0;padding:10px 14px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)">🏠 Prêt immo — projet</div>
-        <div style="display:flex;align-items:baseline;gap:4px">
-          <span style="font-family:var(--mono);font-size:18px;font-weight:600;color:var(--warning)" id="immo-val">963 €</span>
-          <span style="font-size:10px;color:var(--muted)">/mois</span>
-        </div>
-      </div>
-      <input type="range" id="immo-slider" min="963" max="1700" step="10" value="963"
-        style="width:100%;accent-color:var(--warning);cursor:pointer;margin-bottom:4px"
-        oninput="updateImmoSlider(this.value)">
-      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted2)">
-        <span>963 € actuel</span>
-        <span id="immo-delta" style="font-family:var(--mono);font-weight:600"></span>
-        <span>1 700 € max</span>
-      </div>
-    </div>
-    <div><!-- spacer --></div>
-  </div>
+  </div><!-- fin CAF + Prêt immo + Points clés -->
 
 </div>
 
