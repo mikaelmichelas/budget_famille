@@ -4,6 +4,40 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Budget Famille 2026</title>
+<script>
+(function(){
+  const H = '8d3f7a2e1b9c4d6f0e5a8b2c7d1f4e9a3b6c0d5f8e2a7b4c1d9f6e3a0b5c8d2';
+  function sha256hex(s){
+    // Simple hash check via SubtleCrypto
+    return crypto.subtle.digest('SHA-256', new TextEncoder().encode(s))
+      .then(b => Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join(''));
+  }
+  function check(){
+    const pwd = document.getElementById('pwd-input').value;
+    sha256hex(pwd).then(h => {
+      if(h === '8f14e45fceea167a5a36dedd4bea2543') {
+        sessionStorage.setItem('budget-auth','1');
+        document.getElementById('pwd-screen').remove();
+        document.getElementById('app').style.display='';
+      } else {
+        document.getElementById('pwd-err').style.display='block';
+        document.getElementById('pwd-input').value='';
+        document.getElementById('pwd-input').focus();
+      }
+    });
+  }
+  window.addEventListener('DOMContentLoaded', function(){
+    if(sessionStorage.getItem('budget-auth')==='1'){
+      document.getElementById('pwd-screen').remove();
+      document.getElementById('app').style.display='';
+      return;
+    }
+    document.getElementById('pwd-input').addEventListener('keydown', e => { if(e.key==='Enter') check(); });
+    document.getElementById('pwd-btn').addEventListener('click', check);
+  });
+  window._checkPwd = check;
+})();
+</script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
 
@@ -292,7 +326,8 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
     </div>
   </div>
 
-  <!-- Barre équilibre -->
+  <!-- Barre équilibre + CAF côte à côte -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
   <div class="card">
     <div class="sh">Équilibre mensuel du budget</div>
     <div style="margin-bottom:8px;font-size:12px;color:var(--muted)">Répartition des <span id="eq-total" style="color:var(--text);font-family:var(--mono)">6 637 €</span> de revenus mensuels</div>
@@ -309,7 +344,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
   </div>
 
   <!-- CAF slider -->
-  <div class="card mt12">
+  <div class="card">
     <div class="sh">Allocations familiales CAF — couple
       <span style="font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted2)">Distinct du SFT inclus dans le salaire d'Emilie</span>
     </div>
@@ -335,6 +370,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
       </div>
     </div>
   </div>
+  </div><!-- fin grid équilibre+CAF -->
 
   <!-- Highlights -->
   <div class="card mt12">
@@ -346,7 +382,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
       <div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:16px;padding:5px 12px;font-size:12px;display:flex;gap:6px;align-items:center">🎉 Fin prêt travaux <span style="font-family:var(--mono);color:var(--warning)">déc. 2026 → +259 €</span></div>
     </div>
     <div class="note">
-      <strong>Changements en cours :</strong> Augmentation Mikael <span class="ok">+~191 €/mois net</span> · Perte SFT Coline pour Emilie (montant à préciser — estimation ~80 €). Utilisez l'onglet <strong>⚡ Simulation</strong> pour tester l'impact.
+      <strong>Changements à venir :</strong> Fin du prêt Travaux en décembre <span class="ok">+259 €/mois net</span>
     </div>
   </div>
 </div>
