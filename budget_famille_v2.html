@@ -382,9 +382,9 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
   <div class="card mt12">
     <div class="sh">Points clés</div>
     <div style="display:flex;flex-wrap:wrap;gap:8px">
-      <div style="background:rgba(42,48,80,0.5);border:1px solid var(--border);border-radius:16px;padding:5px 12px;font-size:12px;display:flex;gap:6px;align-items:center">🏠 Prêts immo + travaux + solaire <span style="font-family:var(--mono);color:var(--warning)">1 462 €/mois</span></div>
-      <div style="background:rgba(42,48,80,0.5);border:1px solid var(--border);border-radius:16px;padding:5px 12px;font-size:12px;display:flex;gap:6px;align-items:center">📚 Scolarité / études <span style="font-family:var(--mono);color:var(--emilie)">365 €/mois</span></div>
-      <div style="background:rgba(42,48,80,0.5);border:1px solid var(--border);border-radius:16px;padding:5px 12px;font-size:12px;display:flex;gap:6px;align-items:center">🛒 Alimentation totale <span style="font-family:var(--mono);color:var(--commun)">500 €/mois</span></div>
+      <div style="background:rgba(42,48,80,0.5);border:1px solid var(--border);border-radius:16px;padding:5px 12px;font-size:12px;display:flex;gap:6px;align-items:center">🏠 Prêts immo + travaux + solaire <span id="kpi-prets" style="font-family:var(--mono);color:var(--warning)">— €/mois</span></div>
+      <div style="background:rgba(42,48,80,0.5);border:1px solid var(--border);border-radius:16px;padding:5px 12px;font-size:12px;display:flex;gap:6px;align-items:center">📚 Scolarité / études <span id="kpi-scolarite" style="font-family:var(--mono);color:var(--emilie)">— €/mois</span></div>
+      <div style="background:rgba(42,48,80,0.5);border:1px solid var(--border);border-radius:16px;padding:5px 12px;font-size:12px;display:flex;gap:6px;align-items:center">🛒 Alimentation totale <span id="kpi-alim" style="font-family:var(--mono);color:var(--commun)">— €/mois</span></div>
       <div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:16px;padding:5px 12px;font-size:12px;display:flex;gap:6px;align-items:center">🎉 Fin prêt travaux <span style="font-family:var(--mono);color:var(--warning)">déc. 2026 → +259 €</span></div>
     </div>
     <div class="note">
@@ -930,7 +930,47 @@ function updateAll() {
 
   // Sync panel épargne si présent
   if (document.getElementById('epg-dispo')) syncEpargne();
+
+  // Points clés dynamiques
+  updatePointsCles();
   } finally { window._inUpdateAll = false; }
+}
+
+function updatePointsCles() {
+  // Mots-clés par catégorie (sur communesData + persoE + persoM)
+  const keysPrets    = ['prêt immobilier','prêt travaux','panneaux solaires','prêt immo'];
+  const keysScol     = ['scolarité','études','formation','coline','charly','robin'];
+  const keysAlim     = ['courses alimentaires','alimentation','boulangerie','boucherie','restaurant'];
+
+  function matchKey(name, keys) {
+    const n = name.toLowerCase();
+    return keys.some(k => n.includes(k));
+  }
+
+  let prets = 0, scol = 0, alim = 0;
+
+  // Dépenses communes
+  communesData.forEach(d => {
+    if (matchKey(d.name, keysPrets)) prets += d.total;
+    if (matchKey(d.name, keysScol))  scol  += d.total;
+    if (matchKey(d.name, keysAlim))  alim  += d.total;
+  });
+  // Dépenses perso Emilie
+  persoE.forEach(d => {
+    if (matchKey(d.name, keysScol)) scol += d.v;
+    if (matchKey(d.name, keysAlim)) alim += d.v;
+  });
+  // Dépenses perso Mikael
+  persoM.forEach(d => {
+    if (matchKey(d.name, keysScol)) scol += d.v;
+    if (matchKey(d.name, keysAlim)) alim += d.v;
+  });
+
+  const fmtKpi = v => Math.round(v).toLocaleString('fr-FR') + ' €/mois';
+  const el = id => document.getElementById(id);
+  if (el('kpi-prets'))    el('kpi-prets').textContent    = fmtKpi(prets);
+  if (el('kpi-scolarite'))el('kpi-scolarite').textContent= fmtKpi(scol);
+  if (el('kpi-alim'))     el('kpi-alim').textContent     = fmtKpi(alim);
 }
 
 // ══════════════════════════════════════════
