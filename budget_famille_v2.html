@@ -489,7 +489,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
     <div class="bars" id="dep-bars"></div>
   </div>
   <div class="card mt12">
-    <div class="sh">Dépenses communes — détail complet <button class="btn-reset" onclick="resetCommunes()">Réinitialiser</button></div>
+    <div class="sh">Dépenses communes — détail complet <button class="btn-reset" onclick="resetCommunes()">Réinitialiser</button><button class="btn-reset" onclick="saveCatsAndSync()" style="margin-left:6px;border-color:rgba(167,139,250,.4);color:var(--mikael)" id="btn-save-cats">💾 Enregistrer les types</button></div>
     <table class="dt"><thead><tr><th>Poste</th><th>Type</th><th style="text-align:right">Total</th><th style="text-align:right">Emilie</th><th style="text-align:right">Mikael</th></tr></thead>
     <tbody id="communes-tbl"></tbody></table>
   </div>
@@ -1123,6 +1123,12 @@ function updatePersoCat(tbId, i, val) {
   else persoMData[i].cat = val;
   updateAll();
 }
+async function saveCatsAndSync() {
+  const btn = document.getElementById('btn-save-cats');
+  if (btn) { btn.textContent = '⏳ Enregistrement…'; btn.disabled = true; }
+  await saveToStorage();
+  if (btn) { btn.textContent = '✓ Types enregistrés'; setTimeout(() => { btn.textContent = '💾 Enregistrer les types'; btn.disabled = false; }, 2000); }
+}
 function resetCommunes() { communesData = communes.map(c=>({...c})); state.eDepC = BASE.eDepC; state.mDepC = BASE.mDepC; renderCommunesTable(); updateAll(); renderDepBars(); }
 function resetPerso(who) {
   if (who==='e') { persoEData = persoE.map(p=>({...p})); state.eDepP = BASE.eDepP; renderPersoTable(persoEData, persoE, 'perso-e-tbl','ce'); }
@@ -1730,7 +1736,7 @@ function applySheetData(data) {
     communes.forEach(c => { catMapC[c.name] = c.cat; });
     communesData = data.communes.slice(1).map(r => ({
       name:r[0], total:parseFloat(r[1])||0, e:parseFloat(r[2])||0, m:parseFloat(r[3])||0,
-      cat: (r[4] && r[4] !== '') ? r[4] : (catMapC[r[0]] || 'incompressible')
+      cat: (r[4] != null && String(r[4]).trim() !== '') ? r[4] : (catMapC[r[0]] || 'incompressible')
     }));
   }
   // persoE — cat : Sheets en priorité, sinon constante par nom
@@ -1739,7 +1745,7 @@ function applySheetData(data) {
     persoE.forEach(p => { catMapE[p.name] = p.cat; });
     persoEData = data.persoE.slice(1).map(r => ({
       name:r[0], v:parseFloat(r[1])||0,
-      cat: (r[2] && r[2] !== '') ? r[2] : (catMapE[r[0]] || 'incompressible')
+      cat: (r[2] != null && String(r[2]).trim() !== '') ? r[2] : (catMapE[r[0]] || 'incompressible')
     }));
   }
   // persoM — cat : Sheets en priorité, sinon constante par nom
@@ -1748,7 +1754,7 @@ function applySheetData(data) {
     persoM.forEach(p => { catMapM[p.name] = p.cat; });
     persoMData = data.persoM.slice(1).map(r => ({
       name:r[0], v:parseFloat(r[1])||0,
-      cat: (r[2] && r[2] !== '') ? r[2] : (catMapM[r[0]] || 'incompressible')
+      cat: (r[2] != null && String(r[2]).trim() !== '') ? r[2] : (catMapM[r[0]] || 'incompressible')
     }));
   }
   // poches
