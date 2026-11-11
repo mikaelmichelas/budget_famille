@@ -330,9 +330,11 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
         <div style="flex:1;min-width:0">
           <div class="clabel" style="margin-bottom:3px">Revenus</div>
           <div class="cvalue" id="kpi-rev" style="color:var(--commun);font-size:18px">—</div>
-          <div style="display:flex;gap:8px;margin-top:5px;font-size:11px">
+          <div style="display:flex;gap:6px;margin-top:5px;font-size:11px;align-items:center">
+            <span class="ce" style="font-weight:600">E</span>
             <span class="ce" style="font-family:var(--mono)" id="kpi-rev-e-lbl">—</span>
             <span style="color:var(--muted2)">·</span>
+            <span class="cm" style="font-weight:600">M</span>
             <span class="cm" style="font-family:var(--mono)" id="kpi-rev-m-lbl">—</span>
           </div>
         </div>
@@ -350,27 +352,26 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
       </div>
 
       <!-- ÉPARGNE -->
-      <div class="card" style="padding:12px 14px;display:flex;align-items:center;justify-content:space-between">
-        <div style="flex:1;min-width:0">
-          <div class="clabel" style="margin-bottom:3px">Épargne</div>
-          <div class="cvalue" id="kpi-epg" style="color:var(--emilie);font-size:18px">—</div>
-          <div style="display:flex;gap:8px;margin-top:5px;font-size:11px">
-            <span class="ce" style="font-family:var(--mono)" id="kpi-epg-e-lbl">—</span>
-            <span style="color:var(--muted2)">·</span>
-            <span class="cm" style="font-family:var(--mono)" id="kpi-epg-m-lbl">—</span>
+      <div class="card" style="padding:12px 14px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div>
+            <div class="clabel" style="margin-bottom:2px">Épargne</div>
+            <div class="cvalue" id="kpi-epg" style="color:var(--emilie);font-size:18px">—</div>
+          </div>
+          <div style="position:relative;width:36px;height:36px;flex-shrink:0">
+            <svg width="36" height="36" viewBox="0 0 36 36" style="transform:rotate(-90deg)">
+              <circle fill="none" stroke="var(--border)" stroke-width="4" cx="18" cy="18" r="13"/>
+              <circle id="donut-epg-arc" fill="none" stroke="var(--emilie)" stroke-width="4" stroke-linecap="round" cx="18" cy="18" r="13" stroke-dasharray="0 82"/>
+            </svg>
+            <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
+              <span id="donut-epg-pct" style="font-family:var(--mono);font-size:9px;font-weight:600;color:var(--emilie)">—%</span>
+            </div>
           </div>
         </div>
-        <div style="position:relative;width:36px;height:36px;flex-shrink:0;margin-left:10px">
-          <svg width="36" height="36" viewBox="0 0 36 36" style="transform:rotate(-90deg)">
-            <circle fill="none" stroke="var(--border)" stroke-width="4" cx="18" cy="18" r="13"/>
-            <circle id="donut-epg-arc" fill="none" stroke="var(--emilie)" stroke-width="4" stroke-linecap="round" cx="18" cy="18" r="13" stroke-dasharray="0 82"/>
-          </svg>
-          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
-            <span id="donut-epg-pct" style="font-family:var(--mono);font-size:9px;font-weight:600;color:var(--emilie)">—%</span>
-          </div>
-        </div>
+        <!-- Liste des poches -->
+        <div id="kpi-epg-poches" style="display:flex;flex-direction:column;gap:4px"></div>
         <!-- barres cachées -->
-        <div style="display:none"><div id="kpi-epg-bar-e"></div><div id="kpi-epg-bar-m"></div></div>
+        <div style="display:none"><div id="kpi-epg-bar-e"></div><div id="kpi-epg-bar-m"></div><span id="kpi-epg-e-lbl"></span><span id="kpi-epg-m-lbl"></span></div>
       </div>
 
       <!-- SURPLUS -->
@@ -378,9 +379,11 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
         <div style="flex:1;min-width:0">
           <div class="clabel" style="margin-bottom:3px">Surplus libre</div>
           <div class="cvalue cs" id="kpi-sur" style="font-size:18px">—</div>
-          <div style="display:flex;gap:8px;margin-top:5px;font-size:11px">
+          <div style="display:flex;gap:6px;margin-top:5px;font-size:11px;align-items:center">
+            <span class="ce" style="font-weight:600">E</span>
             <span style="font-family:var(--mono)" id="kpi-sur-e">—</span>
             <span style="color:var(--muted2)">·</span>
+            <span class="cm" style="font-weight:600">M</span>
             <span style="font-family:var(--mono)" id="kpi-sur-m">—</span>
           </div>
         </div>
@@ -403,49 +406,49 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
     </div>
   </div>
 
-  <!-- CAF seul (barre équilibre supprimée — doublon des donuts) -->
-  <div style="margin-bottom:12px">
-  <div class="card">
-    <div class="sh">Allocations familiales CAF — couple
-      <span style="font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted2)">Distinct du SFT inclus dans le salaire d'Emilie</span>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center">
-      <div>
-        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:6px">
-          <span>0 €</span>
-          <span>600 €</span>
-        </div>
-        <input type="range" id="caf-slider" min="0" max="600" step="5" value="210"
-          style="width:100%;accent-color:var(--commun);cursor:pointer"
-          oninput="updateCAF(this.value)">
-        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted2);margin-top:4px">
-          <span>Aucune allocation</span>
-          <span>← Ajuster dès réception →</span>
-          <span>Montant actuel</span>
-        </div>
-      </div>
-      <div style="text-align:center;min-width:90px">
-        <div style="font-family:var(--mono);font-size:28px;font-weight:600;color:var(--commun)" id="caf-val">210 €</div>
-        <div style="font-size:10px;color:var(--muted);margin-top:2px">/mois</div>
-        <div style="font-size:10px;color:var(--muted2);margin-top:4px" id="caf-delta"></div>
-      </div>
-    </div>
-  </div>
-  </div><!-- fin CAF -->
+  <!-- CAF + Points clés — côte à côte 50/50 -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
 
-  <!-- Highlights -->
-  <div class="card mt12">
-    <div class="sh">Points clés</div>
-    <div style="display:flex;flex-wrap:wrap;gap:8px">
-      <div style="background:rgba(42,48,80,0.5);border:1px solid var(--border);border-radius:16px;padding:5px 12px;font-size:12px;display:flex;gap:6px;align-items:center">🏠 Prêts immo + travaux + solaire <span id="kpi-prets" style="font-family:var(--mono);color:var(--warning)">— €/mois</span></div>
-      <div style="background:rgba(42,48,80,0.5);border:1px solid var(--border);border-radius:16px;padding:5px 12px;font-size:12px;display:flex;gap:6px;align-items:center">📚 Scolarité / études <span id="kpi-scolarite" style="font-family:var(--mono);color:var(--emilie)">— €/mois</span></div>
-      <div style="background:rgba(42,48,80,0.5);border:1px solid var(--border);border-radius:16px;padding:5px 12px;font-size:12px;display:flex;gap:6px;align-items:center">🛒 Alimentation totale <span id="kpi-alim" style="font-family:var(--mono);color:var(--commun)">— €/mois</span></div>
-      <div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:16px;padding:5px 12px;font-size:12px;display:flex;gap:6px;align-items:center">🎉 Fin prêt travaux <span style="font-family:var(--mono);color:var(--warning)">déc. 2026 → +259 €</span></div>
+    <!-- CAF -->
+    <div class="card" style="margin:0">
+      <div class="sh">Allocations CAF
+        <span style="font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted2)">hors SFT salaire Emilie</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center">
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:6px">
+            <span>0 €</span>
+            <span>600 €</span>
+          </div>
+          <input type="range" id="caf-slider" min="0" max="600" step="5" value="210"
+            style="width:100%;accent-color:var(--commun);cursor:pointer"
+            oninput="updateCAF(this.value)">
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted2);margin-top:4px">
+            <span>Aucune</span>
+            <span>← Ajuster →</span>
+            <span>Actuel</span>
+          </div>
+        </div>
+        <div style="text-align:center;min-width:70px">
+          <div style="font-family:var(--mono);font-size:24px;font-weight:600;color:var(--commun)" id="caf-val">210 €</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px">/mois</div>
+          <div style="font-size:10px;color:var(--muted2);margin-top:4px" id="caf-delta"></div>
+        </div>
+      </div>
     </div>
-    <div class="note">
-      <strong>Changements à venir :</strong> Fin du prêt Travaux en décembre <span class="ok">+259 €/mois net</span>
+
+    <!-- Points clés -->
+    <div class="card" style="margin:0">
+      <div class="sh">Points clés</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="background:rgba(42,48,80,0.5);border:1px solid var(--border);border-radius:12px;padding:5px 10px;font-size:11px;display:flex;gap:6px;align-items:center">🏠 Prêts <span id="kpi-prets" style="font-family:var(--mono);color:var(--warning);margin-left:auto">— €/mois</span></div>
+        <div style="background:rgba(42,48,80,0.5);border:1px solid var(--border);border-radius:12px;padding:5px 10px;font-size:11px;display:flex;gap:6px;align-items:center">📚 Scolarité <span id="kpi-scolarite" style="font-family:var(--mono);color:var(--emilie);margin-left:auto">— €/mois</span></div>
+        <div style="background:rgba(42,48,80,0.5);border:1px solid var(--border);border-radius:12px;padding:5px 10px;font-size:11px;display:flex;gap:6px;align-items:center">🛒 Alimentation <span id="kpi-alim" style="font-family:var(--mono);color:var(--commun);margin-left:auto">— €/mois</span></div>
+        <div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:12px;padding:5px 10px;font-size:11px;display:flex;gap:6px;align-items:center">🎉 Fin prêt travaux <span style="font-family:var(--mono);color:var(--warning);margin-left:auto">déc. 2026 +259 €</span></div>
+      </div>
     </div>
-  </div>
+
+  </div><!-- fin CAF + Points clés -->
 </div>
 
 <!-- ═══ PANEL DÉPENSES ═══ -->
@@ -890,9 +893,11 @@ function updateAll() {
   const depArc = b.totalRev > 0 ? Math.min((b.totalDep / b.totalRev) * C_DEP, C_DEP) : 0;
   document.getElementById('donut-dep-arc').setAttribute('stroke-dasharray', depArc.toFixed(1) + ' ' + C_DEP.toFixed(1));
   document.getElementById('donut-dep-pct').textContent = b.totalRev > 0 ? Math.round(b.totalDep / b.totalRev * 100) + '%' : '—%';
-  // Épargne (mini)
-  document.getElementById('kpi-epg-e-lbl').textContent = fmt(state.eEpg);
-  document.getElementById('kpi-epg-m-lbl').textContent = fmt(state.mEpg);
+  // Épargne (mini) — valeurs live depuis les poches
+  const epgELbl = (typeof getTotalEpgE === 'function') ? getTotalEpgE() : state.eEpg;
+  const epgMLbl = (typeof getTotalEpgM === 'function') ? getTotalEpgM() : state.mEpg;
+  document.getElementById('kpi-epg-e-lbl').textContent = fmt(epgELbl);
+  document.getElementById('kpi-epg-m-lbl').textContent = fmt(epgMLbl);
   const epgArc = b.totalRev > 0 ? Math.min((b.totalEpg / b.totalRev) * C_MINI, C_MINI) : 0;
   document.getElementById('donut-epg-arc').setAttribute('stroke-dasharray', epgArc.toFixed(1) + ' ' + C_MINI.toFixed(1));
   document.getElementById('donut-epg-pct').textContent = b.totalRev > 0 ? Math.round(b.totalEpg / b.totalRev * 100) + '%' : '—%';
@@ -995,14 +1000,15 @@ function updateAll() {
   updatePointsCles();
   // Chips catégories
   renderCatChips();
+  // Poches épargne dans Vue d'ensemble
+  renderEpgPoches();
   } finally { window._inUpdateAll = false; }
 }
 
 function updatePointsCles() {
-  // Mots-clés par catégorie (sur communesData + persoE + persoM)
-  const keysPrets    = ['prêt immobilier','prêt travaux','panneaux solaires','prêt immo'];
-  const keysScol     = ['scolarité','études','formation','coline'];
-  const keysAlim     = ['courses alimentaires','alimentation','boulangerie','boucherie'];
+  // Prêts : dynamique via cat="pret" sur les 3 datasets
+  const keysScol = ['scolarité','études','formation','coline'];
+  const keysAlim = ['courses alimentaires','alimentation','boulangerie','boucherie'];
 
   function matchKey(name, keys) {
     const n = name.toLowerCase();
@@ -1011,19 +1017,19 @@ function updatePointsCles() {
 
   let prets = 0, scol = 0, alim = 0;
 
-  // Dépenses communes
+  // Prêts : somme de tous les items cat="pret" (communes + persoE + persoM)
   communesData.forEach(d => {
-    if (matchKey(d.name, keysPrets)) prets += d.total;
-    if (matchKey(d.name, keysScol))  scol  += d.total;
-    if (matchKey(d.name, keysAlim))  alim  += d.total;
+    if (d.cat === 'pret') prets += (d.total || 0);
+    if (matchKey(d.name, keysScol)) scol += d.total;
+    if (matchKey(d.name, keysAlim)) alim += d.total;
   });
-  // Dépenses perso Emilie
-  persoE.forEach(d => {
+  persoEData.forEach(d => {
+    if (d.cat === 'pret') prets += (d.v || 0);
     if (matchKey(d.name, keysScol)) scol += d.v;
     if (matchKey(d.name, keysAlim)) alim += d.v;
   });
-  // Dépenses perso Mikael
-  persoM.forEach(d => {
+  persoMData.forEach(d => {
+    if (d.cat === 'pret') prets += (d.v || 0);
     if (matchKey(d.name, keysScol)) scol += d.v;
     if (matchKey(d.name, keysAlim)) alim += d.v;
   });
@@ -1166,6 +1172,24 @@ function renderCatChips() {
   }).join('');
 }
 
+function renderEpgPoches() {
+  const el = document.getElementById('kpi-epg-poches');
+  if (!el) return;
+  const allPoches = [
+    ...pochesE.map(p => ({ ...p, who:'e' })),
+    ...pochesM.map(p => ({ ...p, who:'m' })),
+  ];
+  const maxMontant = Math.max(...allPoches.map(p => p.montant), 1);
+  el.innerHTML = allPoches.map(p => {
+    const pct = (p.montant / maxMontant * 100).toFixed(0);
+    const color = p.who === 'e' ? 'var(--emilie)' : 'var(--mikael)';
+    return `<div style="display:flex;align-items:center;gap:6px;font-size:11px">
+      <span style="color:${color};font-weight:600;width:10px;flex-shrink:0">${p.who==='e'?'E':'M'}</span>
+      <span style="color:var(--muted);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</span>
+      <span style="font-family:var(--mono);color:${color};flex-shrink:0">${p.montant.toLocaleString('fr-FR',{maximumFractionDigits:0})} €</span>
+    </div>`;
+  }).join('');
+}
 function renderDepBars() {
   const top = [...communesData].sort((a,b)=>b.total-a.total).slice(0,8);
   const max = top[0].total;
