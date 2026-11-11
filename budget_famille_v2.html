@@ -275,8 +275,20 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
 
     <!-- DÉPENSES — grande carte gauche -->
-    <div class="card" style="padding:22px 24px;display:flex;flex-direction:column;justify-content:center">
-      <div class="clabel" style="margin-bottom:10px">Dépenses du foyer</div>
+    <div class="card" style="padding:22px 24px;display:flex;flex-direction:column;justify-content:center;position:relative">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px">
+        <div class="clabel">Dépenses du foyer</div>
+        <div style="display:flex;gap:5px;flex-shrink:0">
+          <div style="background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.3);border-radius:20px;padding:2px 8px;font-size:10px;display:flex;align-items:center;gap:4px">
+            <span style="color:var(--emilie);font-weight:600">E</span>
+            <span style="font-family:var(--mono);color:var(--emilie)" id="chip-vir-e">—</span>
+          </div>
+          <div style="background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.3);border-radius:20px;padding:2px 8px;font-size:10px;display:flex;align-items:center;gap:4px">
+            <span style="color:var(--mikael);font-weight:600">M</span>
+            <span style="font-family:var(--mono);color:var(--mikael)" id="chip-vir-m">—</span>
+          </div>
+        </div>
+      </div>
       <!-- Donut grand -->
       <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
         <div style="position:relative;width:72px;height:72px;flex-shrink:0">
@@ -869,6 +881,17 @@ function updateAll() {
   if (virE) virE.textContent = fmt(Math.max(0, b.eVirement));
   if (virM) virM.textContent = fmt(Math.max(0, b.mVirement));
   if (cafDemiEl) cafDemiEl.textContent = Math.round(b.cafDemi);
+  // Chips virements dans card Dépenses du foyer
+  const chipVirE = document.getElementById('chip-vir-e');
+  const chipVirM = document.getElementById('chip-vir-m');
+  const fmtVir = v => Math.round(Math.max(0, v)).toLocaleString('fr-FR') + ' €';
+  if (chipVirE) chipVirE.textContent = fmtVir(b.eVirement);
+  if (chipVirM) chipVirM.textContent = fmtVir(b.mVirement);
+  // Tooltip pour préciser le calcul
+  const virChipE = chipVirE?.closest('div[style*="border-radius:20px"]');
+  const virChipM = chipVirM?.closest('div[style*="border-radius:20px"]');
+  if (virChipE) virChipE.title = `Part dépenses communes E (${Math.round(state.eDepC)} €) − CAF/2 (${Math.round(b.cafDemi)} €)`;
+  if (virChipM) virChipM.title = `Part dépenses communes M (${Math.round(state.mDepC)} €) − CAF/2 (${Math.round(b.cafDemi)} €)`;
   const sb = document.getElementById('global-surplus');
   sb.textContent = 'Surplus · ' + fmtd(b.surplus) + '/mois';
   sb.className = 'surplus-badge' + (b.surplus < 0 ? ' neg' : '');
